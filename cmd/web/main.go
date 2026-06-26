@@ -1,8 +1,13 @@
-package main 
+package main
 
 import (
 	"fmt"
+	"net/http"
+
 	"grimoire/internal/database"
+	"grimoire/internal/handlers"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -10,9 +15,13 @@ func main() {
 
 	err := database.InitDB()
 	if err != nil {
-		fmt.Printf("Erro crítico no banco de dados: %v\n", err)
+		fmt.Printf("Erro crítico no banco: %v\n", err)
 		return
 	}
 
-	fmt.Println("Banco de dados SQLite iniciado com sucesso! Arquivo vocab.db está pronto ")
+	r := chi.NewRouter()
+	r.Post("/api/translate", handlers.TranslateHandler)
+
+	fmt.Println("Servidor rodando na porta 8080...")
+	http.ListenAndServe(":8080", r)
 }
