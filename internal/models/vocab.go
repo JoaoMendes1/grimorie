@@ -9,6 +9,8 @@ type TranslateResponse struct {
 	Error       string `json:"error,omitempty"`
 }
 
+// Define um contrato restrito 
+
 type AudioRequest struct {
 	Term string `json: "term"`
 }

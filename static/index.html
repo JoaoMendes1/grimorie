@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Grimoire - Bloqueado</title>
+</head>
+<body>
+    <!-- Tela 1: Onde o usuário digita a senha -->
+    <div id="tela-login">
+        <h2>Digite o PIN do Grimoire</h2>
+        <input type="password" id="campo-pin" placeholder="Senha">
+        <button onclick="tentarAcesso()">Entrar</button>
+        <p id="aviso" style="color: red;"></p>
+    </div>
+
+    <!-- Tela 2: O dicionário real (escondido no início) -->
+    <div id="tela-app" style="display:none;">
+        <h2>Bem-vindo ao Grimoire! (Acesso Liberado)</h2>
+        <p>A interface completa entrará aqui nas próximas etapas.</p>
+    </div>
+
+    <script>
+        // Função ativada quando clica no botão "Entrar"
+        function tentarAcesso() {
+            // Pega o que foi digitado no campo
+            const pin = document.getElementById('campo-pin').value;
+            
+            // Faz um teste rápido na nossa rota de tradução mandando a senha
+            fetch('/api/translate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-App-PIN': pin // Envia a senha digitada
+                },
+                body: JSON.stringify({ term: "teste" })
+            }).then(resposta => {
+                // Se o servidor barrar (código 401)
+                if (resposta.status === 401) {
+                    document.getElementById('aviso').innerText = "PIN Incorreto!";
+                } else {
+                    // Se passar, esconde o login e mostra o sistema
+                    document.getElementById('tela-login').style.display = 'none';
+                    document.getElementById('tela-app').style.display = 'block';
+                    
+                    // Salva a senha no navegador para as próximas ações
+                    localStorage.setItem('app_pin', pin);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
