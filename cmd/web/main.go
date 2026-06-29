@@ -21,6 +21,7 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Post("/api/translate", handlers.TranslateHandler)
+	r.Post("/api/audio", handlers.AudioHandler) 
 
 	fmt.Println("Servidor rodando na porta 8080...")
 	http.ListenAndServe(":8080", r)
