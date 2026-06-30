@@ -32,6 +32,9 @@ func main() {
 	r.With(middleware.AuthPIN).Post("/api/translate", handlers.TranslateHandler)
 	r.With(middleware.AuthPIN).Post("/api/audio", handlers.AudioHandler)
 
+	r.With(middleware.AuthPIN).Post("/api/words", handlers.SaveWordHandler)
+	r.With(middleware.AuthPIN).Get("/api/words", handlers.ListWordsHandler)
+
 	fmt.Println("Servidor rodando na porta 8080...")
 	http.ListenAndServe(":8080", r)
 }
