@@ -22,6 +22,7 @@ func InitDB() error {
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	term TEXT NOT NULL, 
 	translation TEXT NOT NULL,
+	audio_url TEXT,
 	status TEXT DEFAULT 'Pendente',
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);`
