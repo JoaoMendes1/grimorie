@@ -2,110 +2,74 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="no-referrer"> <title>Grimoire</title>
+    <meta name="referrer" content="no-referrer">
+    <title>Terminal Vocab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+   
 </head>
-<body>
-    <div id="tela-login">
-        <h2>Digite o PIN do Grimoire</h2>
-        <input type="password" id="campo-pin" placeholder="Senha">
-        <button onclick="tentarAcesso()">Entrar</button>
-        <p id="aviso" style="color: red;"></p>
+<body class="min-h-screen p-6 md:p-10 flex flex-col items-center">
+
+    <div id="tela-login" class="panel p-8 rounded-xl w-full max-w-sm text-center mt-32">
+        <h2 class="text-2xl font-bold mb-6 text-white tracking-wide">Acesso ao Terminal</h2>
+        <input type="password" id="campo-pin" placeholder="Senha de acesso" class="input-dark w-full px-4 py-3 rounded-lg mb-6" onkeypress="if(event.key === 'Enter') tentarAcesso()">
+        <button onclick="tentarAcesso()" class="btn-primary w-full py-3 rounded-lg uppercase tracking-wider text-sm">Sincronizar</button>
+        <p id="aviso" class="text-red-400 mt-4 text-sm font-medium"></p>
     </div>
 
-    <div id="tela-app" style="display:none;">
-        <h2>Meu Grimoire</h2>
+    <div id="tela-app" style="display:none;" class="w-full max-w-7xl">
         
-        <div>
-            <input type="text" id="novo-termo" placeholder="Palavra em inglês...">
-            <button onclick="salvarPalavra()">Adicionar</button>
-        </div>
+        <header class="flex justify-between items-center mb-10 border-b border-gray-700 pb-6">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white flex items-center gap-3 tracking-tight">
+                    <span class="text-[#66fcf1]">//</span> TERMINAL VOCAB
+                </h1>
+                <p class="text-xs text-[#45a29e] mt-1 uppercase tracking-[0.2em]">Registro de Dados de Exploração</p>
+            </div>
+        </header>
 
-        <ul id="lista-palavras"></ul>
+        <div class="flex flex-col lg:flex-row gap-8">
+            <aside class="panel p-6 rounded-xl w-full lg:w-1/3 h-fit sticky top-6">
+                <h3 class="text-sm font-bold text-gray-300 mb-6 uppercase tracking-widest flex items-center gap-2">
+                    <span class="text-[#66fcf1]">+</span> Novo Registro
+                </h3>
+                
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Termo Detectado (Inglês)</label>
+                        <textarea id="novo-termo" rows="1" placeholder="Ex: Target..." class="input-dark w-full px-4 py-3 rounded-lg text-sm" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Tradução Decodificada</label>
+                        <textarea id="traducao-automatica" rows="1" placeholder="Tradução aparecerá aqui..." class="input-dark w-full px-4 py-3 rounded-lg text-sm text-gray-400 bg-[#1f2833]" readonly></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Categoria de Dados</label>
+                        <select id="categoria" class="input-dark w-full px-4 py-3 rounded-lg text-sm">
+                            <option>Combate / Skill</option>
+                            <option>Lore / História</option>
+                            <option>Interface (UI)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="salvarPalavra()" class="btn-primary w-full py-4 rounded-lg mt-2 flex justify-center items-center gap-3 uppercase tracking-wider text-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                        Salvar no Terminal
+                    </button>
+                </div>
+            </aside>
+
+            <main class="w-full lg:w-2/3 flex flex-col gap-6">
+                <input type="text" id="campo-busca" oninput="filtrarLista(this.value)" placeholder="Buscar no banco de dados..." class="panel input-dark w-full px-5 py-4 rounded-xl text-sm">
+                
+                <div id="lista-palavras" class="flex flex-col gap-4"></div>
+            </main>
+        </div>
     </div>
 
-   <script>
-        const headersApp = { 'Content-Type': 'application/json' };
+    <script src="/app.js"></script>
 
-        function tentarAcesso() {
-            const pin = document.getElementById('campo-pin').value;
-            headersApp['X-App-PIN'] = pin;
-
-            fetch('/api/words', { method: 'GET', headers: headersApp })
-            .then(res => {
-                if (res.status === 401) {
-                    document.getElementById('aviso').innerText = "PIN Incorreto!";
-                } else {
-                    document.getElementById('tela-login').style.display = 'none';
-                    document.getElementById('tela-app').style.display = 'block';
-                    carregarLista();
-                }
-            });
-        }
-
-        async function salvarPalavra() {
-            const termo = document.getElementById('novo-termo').value;
-            if (!termo) return;
-
-            const resTrad = await fetch('/api/translate', { method: 'POST', headers: headersApp, body: JSON.stringify({ term: termo }) });
-            const dadosTrad = await resTrad.json();
-            
-            const resAud = await fetch('/api/audio', { method: 'POST', headers: headersApp, body: JSON.stringify({ term: termo }) });
-            const dadosAud = await resAud.json();
-
-            const traducaoCorreta = dadosTrad.translatedText || dadosTrad.translation || dadosTrad.Translation || "Erro";
-            const audioCorreto = dadosAud.audioUrl || dadosAud.AudioURL || "";
-
-            await fetch('/api/words', {
-                method: 'POST',
-                headers: headersApp,
-                body: JSON.stringify({ term: termo, translation: traducaoCorreta, audioUrl: audioCorreto })
-            });
-
-            document.getElementById('novo-termo').value = '';
-            carregarLista();
-        }
-
-        function carregarLista() {
-            fetch('/api/words', { method: 'GET', headers: headersApp })
-            .then(res => res.json())
-            .then(dados => {
-                const lista = document.getElementById('lista-palavras');
-                lista.innerHTML = ''; // Limpa a lista antes de desenhar
-
-                dados.forEach(palavra => {
-                    const idCorreto = palavra.id || palavra.Id || palavra.ID; 
-                    const termoCorreto = palavra.term || palavra.Term || "";
-                    const traducaoCorreta = palavra.translation || palavra.Translation || "";
-                    const audioCorreto = palavra.audioUrl || palavra.AudioURL || ""; 
-
-                    const li = document.createElement('li'); 
-                    li.innerHTML = `<strong>${termoCorreto}</strong> - ${traducaoCorreta}`; 
-
-                    const btnOuvir = document.createElement('button'); 
-                    btnOuvir.textContent = 'Ouvir'; 
-                    btnOuvir.onclick = function() {
-                        if (audioCorreto && audioCorreto.startsWith('http')) {
-                            new Audio(audioCorreto).play().catch(() => alert("Áudio bloqueado")); 
-                        } else {
-                            alert("Áudio inválido."); 
-                        }
-                    };
-
-                    const btnExcluir = document.createElement('button'); 
-                    btnExcluir.textContent = 'X'; 
-                    btnExcluir.style.marginLeft = '10px';
-                    btnExcluir.style.color = 'red'; 
-                    btnExcluir.onclick = function(){
-                        fetch('/api/words/' + idCorreto, { method: 'DELETE', headers: headersApp})
-                        .then(() => carregarLista()); // Atualiza a lista na mesma hora
-                    };
-
-                    li.appendChild(btnOuvir);
-                    li.appendChild(btnExcluir);
-                    lista.appendChild(li);
-                });
-            });
-        }
-    </script>
 </body>
 </html>

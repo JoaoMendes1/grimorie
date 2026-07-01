@@ -1,0 +1,45 @@
+body {
+    background-color: #0b0c10; 
+    color: #c5c6c7;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.panel {
+    background-color: #1f2833;
+    border: 1px solid #2c353f;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.input-dark {
+    background-color: #0b0c10;
+    border: 1px solid #2c353f;
+    color: #ffffff;
+    transition: border-color 0.2s;
+}
+
+.input-dark:focus {
+    border-color: #66fcf1;
+    outline: none;
+}
+
+.btn-primary {
+    background-color: #45a29e;
+    color: #0b0c10;
+    font-weight: bold; transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #66fcf1;
+    box-shadow: 0 0 10px rgba(102, 252, 241, 0.4);
+}
+
+.badge {
+    background-color: #0b0c10;
+    border: 1px solid #45a29e;
+    color: #66fcf1;
+}
+
+textarea {
+    resize: none;
+    overflow: hidden;
+}
