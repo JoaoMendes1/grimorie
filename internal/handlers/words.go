@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"grimoire/internal/database"
+	"database/sql"
 )
 
 // Estruturas para receber e enviar dados das palavras
@@ -56,9 +57,25 @@ func ListWordsHandler(w http.ResponseWriter, r *http.Request) {
 	var words []WordResponse
 	for linhas.Next() {
 		var word WordResponse
-		linhas.Scan(&word.ID, &word.Term, &word.Translation, &word.AudioURL, &word.Status)
+		var audioURL, status sql.NullString // Prepara para lidar com valores nulos
+
+		// Faz a leitura apontando o áudio e o status para as variáveis seguras
+		err := linhas.Scan(&word.ID, &word.Term, &word.Translation, &audioURL, &status)
+		if err != nil {
+			continue // Pula para a próxima linha se houver erro
+		}
+
+		// Se o valor exiwstir no banco, repassa para a estrutura principal 
+		if audioURL.Valid {
+			word.AudioURL = audioURL.String
+		}
+		if status.Valid {
+			word.Status = status.String 
+		}
+
 		words = append(words, word)
-	}
+		
+		}
 
 	// Se o banco estiver vazio, retorna uma lista vazia
 	if words == nil {

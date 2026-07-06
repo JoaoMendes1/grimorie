@@ -37,8 +37,8 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Nunca intercepta chamadas de API: sempre vai direto na rede.
-  if (url.pathname.startsWith('/api/')) {
-    return;
+  if (url.origin !== location.origin || url.pathname.startsWith('/api/')) {
+    return; 
   }
 
   // Para o resto (HTML/CSS/JS/ícones): cache-first, com atualização em segundo plano.
