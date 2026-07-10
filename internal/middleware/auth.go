@@ -5,8 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
+	"time"
 )
+
+// PONTO 3: Tipo customizado para a chave de contexto (evita colisões silenciosas)
+type contextKey string
+const UserIDKey contextKey = "userID"
 
 func AuthSupabase(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -16,20 +22,43 @@ func AuthSupabase(next http.Handler) http.Handler {
 			return
 		}
 
-		// Pergunta diretamente ao Supabase se o token é válido usando suas credenciais públicas
-		reqSB, _ := http.NewRequest("GET", "https://krzaopiogbskauhicfvp.supabase.co/auth/v1/user", nil)
-		reqSB.Header.Add("Authorization", authHeader)
-		reqSB.Header.Add("apikey", "sb_publishable_YBYol7-sdJpw_ULxO04Q_Q_tfTKuVNQ")
+		// PONTO 5: Lendo credenciais do ambiente em vez de hardcode
+		supabaseURL := os.Getenv("SUPABASE_URL")
+		supabaseKey := os.Getenv("SUPABASE_PUBLIC_KEY")
 
-		resp, err := http.DefaultClient.Do(reqSB)
-		if err != nil || resp.StatusCode != http.StatusOK {
-			fmt.Println("⛔ RECUSADO: Supabase rejeitou o token.")
+		if supabaseURL == "" || supabaseKey == "" {
+			fmt.Println("⛔ ERRO: Variáveis SUPABASE_URL ou SUPABASE_PUBLIC_KEY ausentes.")
+			http.Error(w, "Erro interno do servidor", http.StatusInternalServerError)
+			return
+		}
+
+		reqSB, err := http.NewRequest("GET", supabaseURL+"/auth/v1/user", nil)
+		if err != nil {
+			http.Error(w, "Erro interno ao montar requisição", http.StatusInternalServerError)
+			return
+		}
+		
+		reqSB.Header.Add("Authorization", authHeader)
+		reqSB.Header.Add("apikey", supabaseKey)
+
+		// PONTO 2: Timeout adicionado (5 segundos) para evitar requisições travadas
+		client := &http.Client{Timeout: 5 * time.Second}
+		resp, err := client.Do(reqSB)
+
+		// PONTO 1: defer posicionado corretamente (logo após validar err != nil)
+		if err != nil {
+			fmt.Println("⛔ RECUSADO: Erro de rede ao contactar Supabase:", err)
 			http.Error(w, "Acesso negado", http.StatusUnauthorized)
 			return
 		}
-		defer resp.Body.Close()
+		defer resp.Body.Close() // Fecha o corpo independentemente do Status Code
 
-		// Extrai o ID do usuário da resposta
+		if resp.StatusCode != http.StatusOK {
+			fmt.Println("⛔ RECUSADO: Supabase rejeitou o token (Status:", resp.StatusCode, ")")
+			http.Error(w, "Acesso negado", http.StatusUnauthorized)
+			return
+		}
+
 		var dadosUsuario struct {
 			ID string `json:"id"`
 		}
@@ -39,8 +68,8 @@ func AuthSupabase(next http.Handler) http.Handler {
 			return
 		}
 
-		// Libera o acesso e envia o ID para o banco de dados
-		ctx := context.WithValue(r.Context(), "userID", dadosUsuario.ID)
+		// Utiliza a chave tipada que criamos no início do arquivo
+		ctx := context.WithValue(r.Context(), UserIDKey, dadosUsuario.ID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

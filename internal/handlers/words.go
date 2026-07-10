@@ -8,6 +8,8 @@ import (
 	"fmt"
 
 	"github.com/go-chi/chi/v5"
+	"grimoire/internal/middleware"
+
 )
 
 type WordRequest struct {
@@ -24,12 +26,23 @@ type WordResponse struct {
 	Status      string `json:"status"`
 }
 
+func getUserID(r *http.Request) (string, bool) {
+    userID, ok := r.Context().Value(middleware.UserIDKey).(string)
+    return userID, ok
+}
+
+
 func SaveWordHandler(w http.ResponseWriter, r *http.Request) {
 	var req WordRequest
 	json.NewDecoder(r.Body).Decode(&req)
 
 	// Recupera a identificação de quem está a usar
-	userID := r.Context().Value("userID").(string)
+	userID, ok := getUserID(r)
+if !ok || userID == "" {
+    http.Error(w, "Não autorizado", http.StatusUnauthorized)
+    return
+}
+
 
 	comando := `INSERT INTO vocabularies (term, translation, audio_url, user_id) VALUES ($1, $2, $3, $4) RETURNING id`
 	
@@ -47,7 +60,12 @@ func SaveWordHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListWordsHandler(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("userID").(string)
+	userID, ok := getUserID(r)
+if !ok || userID == "" {
+    http.Error(w, "Não autorizado", http.StatusUnauthorized)
+    return
+}
+
 
 	// Filtra os dados pelo ID
 	linhas, err := database.DB.Query(`SELECT id, term, translation, audio_url, status FROM vocabularies WHERE user_id = $1 ORDER BY id DESC`, userID)
@@ -87,7 +105,12 @@ func ListWordsHandler(w http.ResponseWriter, r *http.Request) {
 
 func DeleteWordHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	userID := r.Context().Value("userID").(string)
+	userID, ok := getUserID(r)
+if !ok || userID == "" {
+    http.Error(w, "Não autorizado", http.StatusUnauthorized)
+    return
+}
+
 
 	// Garante a eliminação apenas dos dados corretos
 	_, err := database.DB.Exec("DELETE FROM vocabularies WHERE id = $1 AND user_id = $2", id, userID)

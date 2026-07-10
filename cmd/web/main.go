@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -29,6 +30,15 @@ func main() {
 // 1. Tela visual livre de bloqueios
 	fs := http.FileServer(http.Dir("static"))
 	r.Handle("/*", fs)
+
+	// Rota pública para entregar as chaves do Supabase ao frontend
+	r.Get("/api/config", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"supabaseUrl": os.Getenv("SUPABASE_URL"),
+			"supabaseKey": os.Getenv("SUPABASE_PUBLIC_KEY"),
+		})
+	})
 
 	// 2. Proteção aplicada apenas nas rotas de processamento usando "r.With"
 	r.With(middleware.AuthSupabase).Post("/api/translate", handlers.TranslateHandler)
