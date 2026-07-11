@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grimoire-shell-v1';
+const CACHE_NAME = 'grimoire-shell-v2';
 
 // Só guardamos em cache o "esqueleto" visual do app (HTML/CSS/JS/ícones).
 // As chamadas de API (/api/...) NUNCA são cacheadas, pois dependem do PIN

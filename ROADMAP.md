@@ -26,9 +26,20 @@ Este documento mapeia a evolução do projeto, detalhando o que já foi estabele
 - [x] **Issue #27 - Arquitetura (Fail-Fast):** Implementar barreira de segurança no `main.go` para abortar a inicialização caso faltem variáveis críticas (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLIC_KEY`).
 - [x] **Hospedagem:** Configurar variáveis de ambiente e realizar o deploy do servidor Go no Render com suporte a múltiplas origens de redirecionamento.
 
+## Fase 3.5: Dívida Técnica, Categorias e Refatoração (🔄 Em Andamento)
+- [ ] **Ambiente de Homologação (Staging):** Estabelecer fluxo de testes locais, análise de riscos e roteiro seguro de publicação.
+- [ ] **Ajuste de Schema do Banco:** Corrigir a dessincronização do `user_id`, criar a tabela `categories` e relacioná-la com `vocabularies`.
+- [ ] **Lógica de Inversão de Idioma:** Garantir que o inglês seja sempre o termo principal ao salvar, independentemente do idioma de entrada.
+- [ ] **Rotas de Categorias (API):** Criar rotas CRUD (GET, POST, PUT, DELETE) para o gerenciamento de categorias.
+- [ ] **Rota de Edição:** Criar a rota `PUT /api/words/{id}` no Go para suportar a atualização de termos.
+- [ ] **Otimização de Auth:** Substituir a validação remota no middleware por validação local de JWT para reduzir latência.
+- [ ] **Resiliência da Tradução:** Implementar fallback na API de tradução para evitar bloqueios.
+- [ ] **Documentação:** Atualizar `README.md` refletindo o PostgreSQL, nuvem e novas variáveis de ambiente.
+
 ## Fase 4: Nova Identidade, Flashcards e Edição
 - [ ] **Tela de Login:** Implementar a interface imersiva com animações.
 - [ ] **Fundação Visual (HUD):** Aplicar tipografia tech e efeitos de vidro nos painéis.
+- [ ] **Gerenciamento de Categorias (UI):** Desenvolver interface para criar, editar e excluir categorias dinamicamente.
 - [ ] **Sistema de Flashcards:** Atualizar interface para cartões com animação de virar (flip) e frase de contexto.
 - [ ] **Edição de Termos:** Criar funcionalidade e interface para editar palavras já salvas.
 

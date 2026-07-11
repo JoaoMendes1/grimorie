@@ -15,6 +15,7 @@ type TranslateRequest struct {
 
 type TranslateResponse struct {
 	Translation string `json:"translation"`
+	SourceLang string `json:"sourceLang"`
 }
 
 func TranslateHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +45,11 @@ func TranslateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(TranslateResponse{Translation: traduzido})
+	json.NewEncoder(w).Encode(TranslateResponse{
+		Translation: traduzido,
+		SourceLang:  idiomaDetectado,
+	})
+
 }
 
 // Função isolada para evitar repetição 

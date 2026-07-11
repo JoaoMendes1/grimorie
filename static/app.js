@@ -3,6 +3,7 @@ let audioAtual = null;
 let botaoAudioAtual = null; 
 let timerDigitacao;
 let ultimaListaPalavras = [];
+let idiomaOrigemAtual = [];
 
 // 1. INICIALIZAÇÃO SEGURA (Busca as chaves no backend)
 async function iniciarApp() {
@@ -81,6 +82,8 @@ document.getElementById('novo-termo').addEventListener('input', function() {
         const dados = await res.json();
         campoTraducao.value = dados.translation || "Erro na decodificação";
         
+        idiomaOrigemAtual = dados.sourceLang || 'en'; // Salva o idioma detectado 
+        
         // Ajusta o tamanho da caixa de tradução
         campoTraducao.style.height = ''; 
         campoTraducao.style.height = campoTraducao.scrollHeight + 'px';
@@ -104,7 +107,16 @@ async function salvarPalavra() {
     
     if (!termo || traducao === 'Decodificando...') return;
 
-    const resAud = await fetch('/api/audio', { method: 'POST', headers: await getHeaders(), body: JSON.stringify({ term: termo }) });
+    //Issue #29
+    let termoFinal = termo; 
+    let traducaoFinal = traducao; 
+
+    if(idiomaOrigemAtual.toLowerCase().startsWith('pt')) {
+        termoFinal = traducao; // Inglês no título 
+        traducaoFinal = termo; // Português na legenda 
+    }
+
+    const resAud = await fetch('/api/audio', { method: 'POST', headers: await getHeaders(), body: JSON.stringify({ term: termoFinal }) });
     const dadosAud = await resAud.json();
     const audioCorreto = dadosAud.audioUrl || "";
 
@@ -112,7 +124,7 @@ async function salvarPalavra() {
     await fetch('/api/words', {
         method: 'POST',
         headers: await getHeaders(),
-        body: JSON.stringify({ term: termo, translation: traducao, audioUrl: audioCorreto })
+        body: JSON.stringify({ term: termoFinal, translation: traducaoFinal, audioUrl: audioCorreto })
     });
 
     document.getElementById('novo-termo').value = '';
