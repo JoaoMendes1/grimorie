@@ -300,6 +300,18 @@ window.salvarEdicao = async function() {
     carregarLista();
 }
 
+// Função para gerar cores consistentes baseadas no ID da categoria
+function obterEstiloCategoria(id) {
+    const estilos = [
+        { text: 'text-[#66fcf1]', bg: 'bg-[#45a29e]/10', border: 'border-[#45a29e]/30', line: 'border-l-[#45a29e]' }, // Teal
+        { text: 'text-[#9d8bff]', bg: 'bg-[#9d8bff]/10', border: 'border-[#9d8bff]/30', line: 'border-l-[#9d8bff]' }, // Violet
+        { text: 'text-[#f472b6]', bg: 'bg-[#f472b6]/10', border: 'border-[#f472b6]/30', line: 'border-l-[#f472b6]' }, // Pink
+        { text: 'text-[#fbbf24]', bg: 'bg-[#fbbf24]/10', border: 'border-[#fbbf24]/30', line: 'border-l-[#fbbf24]' }, // Amber
+        { text: 'text-[#34d399]', bg: 'bg-[#34d399]/10', border: 'border-[#34d399]/30', line: 'border-l-[#34d399]' }  // Emerald
+    ];
+    return estilos[(id || 0) % estilos.length];
+}
+
 async function carregarLista() {
     fetch('/api/words', { method: 'GET', headers: await getHeaders() })
     .then(res => res.json())
@@ -319,47 +331,41 @@ async function carregarLista() {
                 if (catEncontrada) nomeCategoria = catEncontrada.name;
             }
 
-            // Flashcard com expansão (Accordion) e botões ocultos
+            const estiloCat = obterEstiloCategoria(palavra.category_id);
+
             lista.innerHTML += `
-                <div class="registro-item panel p-5 sm:p-6 rounded-xl flex flex-col relative overflow-hidden accent-line-teal bg-[#0d131f]/80 hover:bg-[#141b2d] transition-colors cursor-pointer group" onclick="this.classList.toggle('revealed')">
+                <div class="registro-item panel p-5 sm:p-6 rounded-xl flex flex-col relative overflow-hidden border-l-4 ${estiloCat.line} bg-[#0d131f]/80 hover:bg-[#141b2d] transition-colors cursor-pointer group" onclick="this.classList.toggle('revealed')">
                     
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[9px] font-bold text-[#66fcf1] uppercase tracking-widest px-2.5 py-1 rounded-full border border-[#45a29e]/30 bg-[#45a29e]/10 shadow-[0_0_8px_rgba(102,252,241,0.15)]">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-[9px] font-bold ${estiloCat.text} uppercase tracking-widest px-2.5 py-1 rounded-full border ${estiloCat.border} ${estiloCat.bg}">
                             ${nomeCategoria}
                         </span>
                         
-                        <span class="hint-text text-[10px] text-gray-500 font-mono flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
-                            Revelar Tradução
-                        </span>
+                        <div class="flex items-center gap-1 sm:gap-2 opacity-50 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
+                            <button onclick="tocarAudio(this, ${index})" class="p-1.5 sm:p-2 rounded-lg text-[#66fcf1] hover:bg-[#66fcf1]/10 transition" title="Ouvir">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/><path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/></svg>
+                            </button>
+                            <button onclick="prepararEdicao(${index})" class="p-1.5 sm:p-2 rounded-lg text-gray-500 hover:text-[#9d8bff] hover:bg-[#9d8bff]/10 transition" title="Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
+                            </button>
+                            <button onclick="excluirPalavra(${id})" class="p-1.5 sm:p-2 rounded-lg text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition" title="Excluir">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                            </button>
+                        </div>
                     </div>
                     
-                    <h4 class="text-xl sm:text-2xl font-bold text-white whitespace-pre-wrap tracking-tight">${termo}</h4>
+                    <h4 class="text-lg sm:text-xl font-semibold text-white whitespace-pre-wrap tracking-tight leading-relaxed pr-4">${termo}</h4>
                     
                     <div class="flashcard-reveal">
-                        <div>
-                            <div class="pt-4 mt-3 border-t border-white/5">
-                                <p class="text-sm sm:text-base text-gray-400 whitespace-pre-wrap mb-4">${traducao}</p>
-                                
-                                <div class="flex items-center justify-end gap-2" onclick="event.stopPropagation()">
-                                    <button onclick="tocarAudio(this, ${index})" class="p-2 rounded-lg bg-[#0b0c10] border border-[#2c353f] text-[#66fcf1] hover:bg-[#45a29e] hover:text-[#0b0c10] transition" title="Ouvir">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/><path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/></svg>
-                                    </button>
-                                    <button onclick="prepararEdicao(${index})" class="p-2 rounded-lg text-gray-500 hover:text-[#9d8bff] hover:bg-[#9d8bff]/10 transition" title="Editar">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
-                                    </button>
-                            
-                                    <button onclick="excluirPalavra(${id})" class="p-2 rounded-lg text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition" title="Excluir">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="pt-3 mt-3 border-t border-white/5">
+                            <p class="text-sm sm:text-base text-gray-400 whitespace-pre-wrap leading-relaxed">${traducao}</p>
                         </div>
                     </div>
                 </div>`;
         });
     });
 }
+
 
 window.filtrarLista = function(termoBusca) {
     const itens = document.querySelectorAll('.registro-item');
