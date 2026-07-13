@@ -126,16 +126,45 @@
                         </div>
                     </div>
 
-                    <button onclick="salvarPalavra()" class="btn-primary w-full py-4 rounded-lg mt-2 flex justify-center items-center gap-3 uppercase tracking-wider text-xs">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                    <button onclick="salvarPalavra()" class="w-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-[#05070a] font-bold text-xs uppercase tracking-widest py-4 rounded-xl mt-2 flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(180,144,202,0.15)] hover:shadow-[0_0_25px_rgba(94,231,223,0.3)] active:scale-[0.98] transition-all">
+                        <i class="ph-fill ph-download-simple text-lg"></i>
                         Salvar no Terminal
                     </button>
                 </div>
             </aside>
 
             <main class="w-full lg:w-2/3 flex flex-col gap-6 z-0">
-                <input type="text" id="campo-busca" oninput="filtrarLista(this.value)" placeholder="Buscar no banco de dados..." class="panel input-dark w-full px-5 py-4 rounded-xl text-sm">
+                
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2 font-mono text-[10px] text-gray-500 uppercase tracking-widest">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#66fcf1] shadow-[0_0_8px_#66fcf1] animate-pulse"></span>
+                            <span id="stat-line">0 REGISTROS</span>
+                        </div>
+                        <div class="flex items-center gap-1 font-mono text-[10px] text-gray-500 uppercase tracking-widest">
+                            <i class="ph ph-funnel"></i> Filtros
+                        </div>
+                    </div>
+                    
+                    <div id="filter-chips" class="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+                        </div>
+                </div>
+
+                <div class="relative group">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#66fcf1] font-mono font-bold">></span>
+                    <input type="text" id="campo-busca" oninput="filtrarLista(this.value)" placeholder="Buscar no banco de dados..." class="input-dark w-full pl-10 pr-5 py-4 rounded-xl text-sm font-mono placeholder:font-sans">
+                </div>
+                
                 <div id="lista-palavras" class="flex flex-col gap-4"></div>
+
+                <div id="empty-state" class="hidden flex-col items-center text-center gap-4 py-20 text-gray-500 opacity-80">
+                    <div class="w-16 h-16 rounded-full border-2 border-dashed border-gray-700 flex items-center justify-center mb-2">
+                        <i class="ph ph-database text-2xl text-gray-600"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-300">Nenhum registro encontrado</p>
+                    <p class="text-xs max-w-[250px] leading-relaxed">Tente ajustar seus filtros ou termos de busca para encontrar o que precisa.</p>
+                </div>
+
             </main>
         </div>
 

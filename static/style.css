@@ -231,3 +231,5 @@ textarea {
 .registro-item.revealed .hint-text {
     display: none; /* Esconde o "Clique para revelar" */
 }
+
+.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
