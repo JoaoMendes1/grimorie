@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
-
-	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
 type contextKey string
@@ -21,43 +21,51 @@ func AuthSupabase(next http.Handler) http.Handler {
 			return
 		}
 
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		jwtSecret := os.Getenv("SUPABASE_JWT_SECRET")
+		supabaseURL := os.Getenv("SUPABASE_URL")
+		supabaseKey := os.Getenv("SUPABASE_PUBLIC_KEY")
 
-		if jwtSecret == "" {
-			fmt.Println("⛔ ERRO CRÍTICO: SUPABASE_JWT_SECRET não definido no ambiente.")
+		if supabaseURL == "" || supabaseKey == "" {
+			fmt.Println("⛔ ERRO: Variáveis do Supabase ausentes.")
 			http.Error(w, "Erro interno do servidor", http.StatusInternalServerError)
 			return
 		}
 
-		// Faz a validação matemática do token localmente (Super rápido)
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("método de assinatura inesperado: %v", token.Header["alg"])
-			}
-			return []byte(jwtSecret), nil
-		})
+		// Validação direta com a API do Supabase (Imune a trocas de tipo de chave ECC/HS256)
+		reqSB, err := http.NewRequest("GET", supabaseURL+"/auth/v1/user", nil)
+		if err != nil {
+			http.Error(w, "Erro interno ao montar requisição", http.StatusInternalServerError)
+			return
+		}
+		
+		reqSB.Header.Add("Authorization", authHeader)
+		reqSB.Header.Add("apikey", supabaseKey)
 
-		if err != nil || !token.Valid {
-			fmt.Println("⛔ RECUSADO: Token JWT Inválido ou Expirado:", err)
+		client := &http.Client{Timeout: 5 * time.Second}
+		resp, err := client.Do(reqSB)
+
+		if err != nil {
+			fmt.Println("⛔ RECUSADO: Erro de rede ao contactar Supabase:", err)
+			http.Error(w, "Acesso negado", http.StatusUnauthorized)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			fmt.Println("⛔ RECUSADO: Supabase rejeitou o token (Status:", resp.StatusCode, ")")
 			http.Error(w, "Acesso negado", http.StatusUnauthorized)
 			return
 		}
 
-		// Extrai o ID do usuário (sub) de dentro do token
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
+		var dadosUsuario struct {
+			ID string `json:"id"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&dadosUsuario); err != nil || dadosUsuario.ID == "" {
+			fmt.Println("⛔ RECUSADO: Falha ao ler ID do usuário.")
 			http.Error(w, "Acesso negado", http.StatusUnauthorized)
 			return
 		}
 
-		userID, ok := claims["sub"].(string)
-		if !ok || userID == "" {
-			http.Error(w, "Acesso negado", http.StatusUnauthorized)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		ctx := context.WithValue(r.Context(), UserIDKey, dadosUsuario.ID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
