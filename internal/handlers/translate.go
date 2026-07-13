@@ -15,7 +15,7 @@ type TranslateRequest struct {
 
 type TranslateResponse struct {
 	Translation string `json:"translation"`
-	SourceLang string `json:"sourceLang"`
+	SourceLang  string `json:"sourceLang"`
 }
 
 func TranslateHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,16 +29,18 @@ func TranslateHandler(w http.ResponseWriter, r *http.Request) {
 
 	textoSeguro := url.QueryEscape(req.Term)
 	
-	// Primeira tentativa: autodeteta o idioma e tenta traduzir para português
+	// TENTATIVA 1: Endpoint Principal
 	apiURL := fmt.Sprintf("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=pt&dt=t&q=%s", textoSeguro)
-
 	traduzido, idiomaDetectado, err := processarTraducao(apiURL)
-	if err != nil {
-		http.Error(w, "Erro na API de tradução", http.StatusInternalServerError)
-		return
+
+	// TENTATIVA 2 (Fallback): Se o primeiro falhar, tenta o endpoint alternativo do Chrome
+	if err != nil || traduzido == "" {
+		fmt.Println("⚠️ Tradução primária falhou, acionando Fallback...")
+		fallbackURL := fmt.Sprintf("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=auto&tl=pt&q=%s", textoSeguro)
+		traduzido, idiomaDetectado, _ = processarTraducaoFallback(fallbackURL)
 	}
 
-	// Se o idioma detetado for português, refaz o pedido traduzindo para inglês
+	// Se for Pt->En
 	if strings.HasPrefix(strings.ToLower(idiomaDetectado), "pt") {
 		apiURL = fmt.Sprintf("https://translate.googleapis.com/translate_a/single?client=gtx&sl=pt&tl=en&dt=t&q=%s", textoSeguro)
 		traduzido, _, _ = processarTraducao(apiURL)
@@ -49,10 +51,9 @@ func TranslateHandler(w http.ResponseWriter, r *http.Request) {
 		Translation: traduzido,
 		SourceLang:  idiomaDetectado,
 	})
-
 }
 
-// Função isolada para evitar repetição 
+// Lógica de leitura para o Endpoint 1
 func processarTraducao(urlReq string) (string, string, error) {
 	resp, err := http.Get(urlReq)
 	if err != nil {
@@ -61,13 +62,10 @@ func processarTraducao(urlReq string) (string, string, error) {
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
-
-	var traduzido string
-	var idiomaDetectado string
+	var traduzido, idiomaDetectado string
 	var dados []interface{}
 	
 	if err := json.Unmarshal(body, &dados); err == nil && len(dados) > 0 {
-		// Extrai o texto traduzido (índice 0)
 		if blocos, ok := dados[0].([]interface{}); ok && len(blocos) > 0 {
 			for _, bloco := range blocos {
 				if pedaco, ok := bloco.([]interface{}); ok && len(pedaco) > 0 {
@@ -75,14 +73,34 @@ func processarTraducao(urlReq string) (string, string, error) {
 				}
 			}
 		}
-		
-		// Extrai o idioma detetado (índice 2)
 		if len(dados) > 2 {
 			if lang, ok := dados[2].(string); ok {
 				idiomaDetectado = lang
 			}
 		}
 	}
-
 	return traduzido, idiomaDetectado, nil
+}
+
+// Lógica de leitura mais simples para o Endpoint 2 (Fallback)
+func processarTraducaoFallback(urlReq string) (string, string, error) {
+	resp, err := http.Get(urlReq)
+	if err != nil {
+		return "", "", err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	var dados map[string]interface{}
+	
+	if err := json.Unmarshal(body, &dados); err == nil {
+		if sentences, ok := dados["sentences"].([]interface{}); ok && len(sentences) > 0 {
+			if first, ok := sentences[0].(map[string]interface{}); ok {
+				if trans, ok := first["trans"].(string); ok {
+					return trans, "en", nil // Força 'en' por simplicidade no fallback
+				}
+			}
+		}
+	}
+	return "", "en", fmt.Errorf("fallback falhou")
 }
