@@ -1,58 +1,50 @@
 :root {
     --void: #05070a;
-    --teal: #66fcf1;
-    --teal-dim: #45a29e;
+    --teal: #00e5ff;
     --violet: #9d8bff;
     --text: #e8f2f1;
-    --border: rgba(102, 252, 241, 0.14);
     --font-display: 'Chakra Petch', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 }
 
 body {
-    background: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(102,252,241,0.06), transparent),
-                radial-gradient(ellipse 70% 50% at 100% 100%, rgba(157,139,255,0.05), transparent),
-                var(--void);
+    background-color: #000;
     color: var(--text);
     font-family: var(--font-body);
-    background-attachment: fixed;
 }
 
-/* Textura de grid de fundo */
+/* Fundo Premium v2 */
 body::before {
     content: '';
     position: fixed; inset: 0;
     background-image:
-      linear-gradient(rgba(102,252,241,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(102,252,241,0.025) 1px, transparent 1px);
-    background-size: 42px 42px;
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 32px 32px;
     pointer-events: none;
     z-index: -1;
 }
 
-/* CLASSES RESTAURADAS E ATUALIZADAS PARA O TEMA SCI-FI */
 .panel {
-    background-color: rgba(16, 22, 29, 0.55);
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background-color: #0d131f;
+    border: 1px solid #1f2937;
 }
 
+/* Estilo de Input Premium Inspirado no seu v2 */
 .input-dark {
-    background-color: rgba(5, 7, 10, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text);
+    background-color: #0d1117;
+    border: 1px solid #1f2937;
+    color: #fff;
     font-family: var(--font-body);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .input-dark:focus {
-    border-color: var(--teal);
-    background-color: #05070a;
-    box-shadow: 0 0 0 1px rgba(102, 252, 241, 0.3);
     outline: none;
+    border-color: var(--teal);
+    background-color: #0d1117;
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.12);
 }
 
 .btn-primary {
@@ -232,5 +224,6 @@ textarea {
 .chevron { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .registro-item.revealed .chevron { transform: rotate(180deg); }
 
+/* Esconder Scrollbars */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

@@ -69,25 +69,28 @@ configurarTraducao('traducao-mobile', 'novo-termo-mobile');
 configurarTraducao('edit-termo', 'edit-traducao');
 configurarTraducao('edit-traducao', 'edit-termo');
 
-// CATEGORIAS E FILTROS
+// MATEMÁTICA DE CORES PREMIUM (Sem Categoria isolado em Verde)
 function obterEstiloCategoria(id) {
+    if (!id) {
+        // Se ID for null, sempre retorna Verde (Sem Categoria)
+        return { corHex: '#00e676', bgTransparente: 'bg-[#00e676]/10', texto: 'text-[#00e676]' }; 
+    }
+    
+    // Lista de cores premium para categorias normais
     const estilos = [
-        { corHex: '#66fcf1', bgTransparente: 'bg-[#66fcf1]/10', texto: 'text-[#66fcf1]' },
-        { corHex: '#9d8bff', bgTransparente: 'bg-[#9d8bff]/10', texto: 'text-[#9d8bff]' },
-        { corHex: '#f472b6', bgTransparente: 'bg-[#f472b6]/10', texto: 'text-[#f472b6]' },
-        { corHex: '#fbbf24', bgTransparente: 'bg-[#fbbf24]/10', texto: 'text-[#fbbf24]' },
-        { corHex: '#34d399', bgTransparente: 'bg-[#34d399]/10', texto: 'text-[#34d399]' }
+        { corHex: '#00e5ff', bgTransparente: 'bg-[#00e5ff]/10', texto: 'text-[#00e5ff]' }, // Cyan
+        { corHex: '#b388ff', bgTransparente: 'bg-[#b388ff]/10', texto: 'text-[#b388ff]' }, // Purple
+        { corHex: '#ffc107', bgTransparente: 'bg-[#ffc107]/10', texto: 'text-[#ffc107]' }, // Amber
+        { corHex: '#f472b6', bgTransparente: 'bg-[#f472b6]/10', texto: 'text-[#f472b6]' }, // Pink
+        { corHex: '#34d399', bgTransparente: 'bg-[#34d399]/10', texto: 'text-[#34d399]' }  // Emerald
     ];
-    return estilos[(id || 0) % estilos.length];
+    return estilos[id % estilos.length];
 }
 
 async function carregarCategorias(idParaSelecionar = null) {
     const res = await fetch('/api/categories', { method: 'GET', headers: await getHeaders()});
     categoriasAtuais = await res.json(); 
-    if (categoriasAtuais.length === 0) {
-        await fetch('/api/categories', { method: 'POST', headers: await getHeaders(), body: JSON.stringify({ name: 'Geral'}) });
-        return carregarCategorias(); 
-    }
+    
     renderizarCustomSelect('categoria', 'categoria-text', 'categoria-dropdown', categoriasAtuais, idParaSelecionar);
     renderizarCustomSelect('categoria-mobile', 'categoria-text-mobile', 'categoria-dropdown-mobile', categoriasAtuais, idParaSelecionar);
     renderizarCustomSelect('edit-categoria', 'edit-categoria-text', 'edit-categoria-dropdown', categoriasAtuais, idParaSelecionar);
@@ -97,16 +100,28 @@ function renderizarCustomSelect(idInput, idText, idDropdown, categorias, idParaS
     const dropdown = document.getElementById(idDropdown);
     const hiddenInput = document.getElementById(idInput);
     const textDisplay = document.getElementById(idText);
-    dropdown.innerHTML = '';
+    
+    // Adiciona a opção vazia (Sem Categoria) no topo
+    let htmlDropdown = `<div class="px-4 py-3 text-sm text-[#00e676] hover:bg-[#1f2937] cursor-pointer border-b border-gray-800 font-bold" onclick="selecionarOpcaoDropdown('${idInput}', '${idText}', '${idDropdown}', '', 'Sem Categoria')">Sem Categoria</div>`;
+    
     categorias.forEach(cat => {
-        const div = document.createElement('div');
-        div.className = 'px-4 py-3 text-sm text-gray-300 hover:bg-[#45a29e] hover:text-[#0b0c10] cursor-pointer border-b border-gray-800 last:border-0';
-        div.textContent = cat.name;
-        div.onclick = () => { hiddenInput.value = cat.id; textDisplay.textContent = cat.name; dropdown.classList.add('hidden'); };
-        dropdown.appendChild(div);
+        htmlDropdown += `<div class="px-4 py-3 text-sm text-gray-300 hover:bg-[#1f2937] cursor-pointer border-b border-gray-800 last:border-0" onclick="selecionarOpcaoDropdown('${idInput}', '${idText}', '${idDropdown}', '${cat.id}', '${cat.name.replace(/'/g, "\\'")}')">${cat.name}</div>`;
     });
-    let selected = idParaSelecionar ? categorias.find(c => c.id == idParaSelecionar) : categorias.find(c => c.id == hiddenInput.value) || categorias[0];
-    if (selected) { hiddenInput.value = selected.id; textDisplay.textContent = selected.name; }
+    dropdown.innerHTML = htmlDropdown;
+
+    let selected = idParaSelecionar ? categorias.find(c => c.id == idParaSelecionar) : categorias.find(c => c.id == hiddenInput.value);
+    
+    if (selected) { 
+        hiddenInput.value = selected.id; textDisplay.textContent = selected.name; 
+    } else {
+        hiddenInput.value = ''; textDisplay.textContent = 'Sem Categoria'; 
+    }
+}
+
+window.selecionarOpcaoDropdown = function(idInput, idText, idDropdown, valor, nome) {
+    document.getElementById(idInput).value = valor;
+    document.getElementById(idText).textContent = nome;
+    document.getElementById(idDropdown).classList.add('hidden');
 }
 
 window.toggleDropdown = function(id) {
@@ -114,29 +129,23 @@ window.toggleDropdown = function(id) {
     document.getElementById(id).classList.toggle('hidden');
 }
 
-// FUNÇÕES DE CRIAR CATEGORIA (RESTAURADAS)
+// MODAL NOVA CATEGORIA
 window.abrirModalCategoria = function() {
     document.getElementById('nova-categoria-nome').value = '';
-    document.getElementById('modal-categoria').classList.remove('hidden');
-    document.getElementById('modal-categoria').classList.add('flex');
+    const m = document.getElementById('modal-categoria');
+    m.classList.remove('hidden'); m.classList.add('flex');
     setTimeout(() => document.getElementById('nova-categoria-nome').focus(), 100);
 }
 
 window.fecharModalCategoria = function() {
-    document.getElementById('modal-categoria').classList.add('hidden');
-    document.getElementById('modal-categoria').classList.remove('flex');
+    const m = document.getElementById('modal-categoria');
+    m.classList.add('hidden'); m.classList.remove('flex');
 }
 
 window.salvarNovaCategoria = async function() {
     const nome = document.getElementById('nova-categoria-nome').value.trim();
     if (!nome) return;
-
-    const res = await fetch('/api/categories', {
-        method: 'POST', 
-        headers: await getHeaders(), 
-        body: JSON.stringify({ name: nome })
-    });
-    
+    const res = await fetch('/api/categories', { method: 'POST', headers: await getHeaders(), body: JSON.stringify({ name: nome }) });
     const dados = await res.json();
     await carregarCategorias(dados.id); 
     fecharModalCategoria();
@@ -144,13 +153,24 @@ window.salvarNovaCategoria = async function() {
 
 function renderizarFiltros() {
     const wrap = document.getElementById('filter-chips');
-    const nomesCategorias = ['Todos', ...categoriasAtuais.map(c => c.name)];
+    // Adiciona "Todos", Categorias, e explicitamente "Sem Categoria"
+    const nomesCategorias = ['Todos', ...categoriasAtuais.map(c => c.name), 'Sem Categoria'];
+    
     wrap.innerHTML = nomesCategorias.map(nome => {
-        const cat = categoriasAtuais.find(c => c.name === nome);
-        const estilo = nome === 'Todos' ? { corHex: '#9ca3af', bgTransparente: 'bg-gray-800/40', texto: 'text-gray-400' } : obterEstiloCategoria(cat.id);
+        let estilo;
+        if (nome === 'Todos') {
+            estilo = { corHex: '#9ca3af', bgTransparente: 'bg-transparent', texto: 'text-gray-400' };
+        } else if (nome === 'Sem Categoria') {
+            estilo = obterEstiloCategoria(null); // Puxa o Verde
+        } else {
+            const cat = categoriasAtuais.find(c => c.name === nome);
+            estilo = obterEstiloCategoria(cat ? cat.id : null);
+        }
+        
         const ativo = filtroAtivo === nome;
-        const styleAtivo = ativo ? `background-color: ${estilo.corHex}; color: #000; border-color: transparent;` : `color: ${estilo.corHex}; border-color: rgba(255,255,255,0.1);`;
-        return `<button onclick="selecionarFiltro('${nome}')" class="whitespace-nowrap px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border transition-all ${ativo ? 'shadow-[0_0_10px_rgba(255,255,255,0.1)]' : 'hover:bg-white/5'}" style="${styleAtivo}">${nome !== 'Todos' ? `<span class="w-1.5 h-1.5 rounded-full" style="background-color: ${ativo ? '#000' : estilo.corHex};"></span>` : ''}${nome}</button>`;
+        const styleAtivo = ativo ? `background-color: ${estilo.corHex}; color: #000; border-color: transparent;` : `color: ${estilo.corHex}; border-color: ${nome === 'Todos' ? '#374151' : estilo.corHex + '66'};`;
+        
+        return `<button onclick="selecionarFiltro('${nome}')" class="whitespace-nowrap px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border transition-all ${ativo ? 'shadow-[0_0_10px_rgba(255,255,255,0.15)]' : 'hover:bg-white/5'}" style="${styleAtivo}">${nome}</button>`;
     }).join('');
 }
 
@@ -162,7 +182,8 @@ window.salvarPalavra = async function(origem = 'desktop') {
     const sufixo = origem === 'mobile' ? '-mobile' : '';
     const termo = document.getElementById('novo-termo' + sufixo).value.trim();
     const traducao = document.getElementById('traducao' + (origem === 'mobile' ? '-mobile' : '-automatica')).value.trim();
-    const categoriaSelecionadaId = parseInt(document.getElementById('categoria' + sufixo).value);
+    const catValue = document.getElementById('categoria' + sufixo).value;
+    const categoriaSelecionadaId = catValue ? parseInt(catValue) : null;
     
     if (!termo || !traducao) return;
 
@@ -188,42 +209,42 @@ function aplicarFiltrosEBuscar() {
     lista.innerHTML = '';
 
     const palavrasFiltradas = ultimaListaPalavras.filter(palavra => {
-        let nomeCat = "SEM CATEGORIA";
+        let nomeCat = "Sem Categoria";
         if (palavra.category_id) { const cat = categoriasAtuais.find(c => c.id === palavra.category_id); if (cat) nomeCat = cat.name; }
         const passaFiltro = filtroAtivo === 'Todos' || nomeCat === filtroAtivo;
         const passaBusca = !termoBuscaAtual || (palavra.term + " " + palavra.translation).toLowerCase().includes(termoBuscaAtual);
         return passaFiltro && passaBusca;
     });
 
-    document.getElementById('stat-line').textContent = `${palavrasFiltradas.length} REGISTRO${palavrasFiltradas.length !== 1 ? 'S' : ''}`;
+    document.getElementById('stat-line').textContent = `${palavrasFiltradas.length} REGISTRO${palavrasFiltradas.length !== 1 ? 'S' : ''} · ${categoriasAtuais.length} CATEGORIAS`;
 
     if (palavrasFiltradas.length === 0) { emptyState.classList.remove('hidden'); emptyState.classList.add('flex'); return; }
     emptyState.classList.add('hidden'); emptyState.classList.remove('flex');
 
     palavrasFiltradas.forEach((palavra, index) => {
-        let nomeCategoria = "SEM CATEGORIA";
+        let nomeCategoria = "Sem Categoria";
         if (palavra.category_id) { const cat = categoriasAtuais.find(c => c.id === palavra.category_id); if (cat) nomeCategoria = cat.name; }
         const estilo = obterEstiloCategoria(palavra.category_id);
 
         lista.innerHTML += `
-            <div class="registro-item panel p-5 pl-6 sm:p-6 sm:pl-7 rounded-2xl flex flex-col relative overflow-hidden bg-[#0d131f]/80 hover:bg-[#141b2d] transition-all cursor-pointer group border border-[#1f2937]/50" onclick="this.classList.toggle('revealed')">
+            <div class="registro-item panel p-5 pl-6 sm:p-6 sm:pl-7 rounded-2xl flex flex-col relative overflow-hidden transition-all cursor-pointer group border border-[#1f2937]/50" onclick="this.classList.toggle('revealed')">
                 <div class="absolute left-0 top-0 bottom-0 w-1 opacity-80" style="background-color: ${estilo.corHex};"></div>
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-[9px] font-bold ${estilo.texto} uppercase tracking-wider px-2.5 py-1 rounded-md flex items-center gap-1.5 ${estilo.bgTransparente}">
-                        <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${estilo.corHex};"></span>${nomeCategoria}
+                    <span class="text-[9px] font-bold ${estilo.texto} uppercase tracking-wider px-2.5 py-1 rounded-full border border-[${estilo.corHex}40] flex items-center gap-1.5 ${estilo.bgTransparente}">
+                        ${nomeCategoria}
                     </span>
                     <div class="flex items-center gap-3 text-gray-500 opacity-60 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
-                        <button onclick="tocarAudio(this, ${index})" class="hover:text-[#66fcf1] p-1"><i class="ph-fill ph-speaker-high text-lg"></i></button>
+                        <button onclick="tocarAudio(this, ${index})" class="hover:text-[#00e5ff] p-1"><i class="ph-fill ph-speaker-high text-lg"></i></button>
                         <button onclick="prepararEdicao(${index})" class="hover:text-white p-1"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
-                        <button onclick="excluirPalavra(${palavra.id})" class="hover:text-red-400 p-1"><i class="ph-fill ph-trash text-lg"></i></button>
+                        <button onclick="excluirPalavra(${palavra.id})" class="hover:text-red-500 p-1"><i class="ph-fill ph-trash text-lg"></i></button>
                         <i class="ph ph-caret-down chevron text-sm ml-1 text-gray-400"></i>
                     </div>
                 </div>
-                <h3 class="text-[17px] sm:text-lg font-semibold text-white leading-relaxed pr-2">${palavra.term || ""}</h3>
+                <h3 class="text-[15px] sm:text-[17px] font-semibold text-white leading-snug pr-2">${palavra.term || ""}</h3>
                 <div class="flashcard-reveal">
                     <div>
-                        <div class="h-px w-full bg-[#1f2937] my-4 relative"><div class="absolute left-0 top-0 h-full w-12" style="background: linear-gradient(90deg, ${estilo.corHex}, transparent);"></div></div>
-                        <p class="text-sm sm:text-[15px] text-gray-400 leading-relaxed pb-1">${palavra.translation || ""}</p>
+                        <div class="h-px w-full bg-[#1f2937] my-3 relative"><div class="absolute left-0 top-0 h-full w-12" style="background: linear-gradient(90deg, ${estilo.corHex}, transparent);"></div></div>
+                        <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed pb-1">${palavra.translation || ""}</p>
                     </div>
                 </div>
             </div>`;
@@ -236,33 +257,42 @@ async function carregarLista() {
     });
 }
 
-// RESTANTE DAS FUNÇÕES AUXILIARES E ÁUDIO
 window.prepararEdicao = function(index) {
     const palavra = ultimaListaPalavras[index]; palavraEmEdicaoId = palavra.id;
     document.getElementById('edit-termo').value = palavra.term || ""; document.getElementById('edit-traducao').value = palavra.translation || "";
+    
     if (palavra.category_id) {
         const cat = categoriasAtuais.find(c => c.id == palavra.category_id);
         if (cat) { document.getElementById('edit-categoria').value = cat.id; document.getElementById('edit-categoria-text').textContent = cat.name; }
+    } else {
+        document.getElementById('edit-categoria').value = ''; document.getElementById('edit-categoria-text').textContent = 'Sem Categoria';
     }
-    document.getElementById('modal-edicao').classList.remove('hidden');
+    
+    const m = document.getElementById('modal-edicao');
+    m.classList.remove('hidden'); m.classList.add('flex');
 }
 
-window.fecharModal = function() { palavraEmEdicaoId = null; document.getElementById('modal-edicao').classList.add('hidden'); }
+window.fecharModal = function() { 
+    palavraEmEdicaoId = null; 
+    const m = document.getElementById('modal-edicao');
+    m.classList.add('hidden'); m.classList.remove('flex');
+}
 
 window.salvarEdicao = async function() {
     if (!palavraEmEdicaoId) return;
-    await fetch('/api/words/' + palavraEmEdicaoId, { method: 'PUT', headers: await getHeaders(), body: JSON.stringify({ term: document.getElementById('edit-termo').value, translation: document.getElementById('edit-traducao').value, category_id: parseInt(document.getElementById('edit-categoria').value) }) });
+    const catValue = document.getElementById('edit-categoria').value;
+    await fetch('/api/words/' + palavraEmEdicaoId, { method: 'PUT', headers: await getHeaders(), body: JSON.stringify({ term: document.getElementById('edit-termo').value, translation: document.getElementById('edit-traducao').value, category_id: catValue ? parseInt(catValue) : null }) });
     fecharModal(); carregarLista();
 }
 
 window.excluirPalavra = async function(id) { fetch('/api/words/' + id, { method: 'DELETE', headers: await getHeaders() }).then(() => carregarLista()); }
 
-function resetarBotaoAudio() { if (botaoAudioAtual) { botaoAudioAtual.classList.remove('text-[#05070a]'); botaoAudioAtual.classList.add('text-[#66fcf1]'); botaoAudioAtual = null; } }
+function resetarBotaoAudio() { if (botaoAudioAtual) { botaoAudioAtual.classList.remove('text-[#05070a]'); botaoAudioAtual.classList.add('text-[#00e5ff]'); botaoAudioAtual = null; } }
 window.tocarAudio = function(botao, index) {
     const url = ultimaListaPalavras[index].audioUrl || ""; const texto = ultimaListaPalavras[index].term || "";
     if (botaoAudioAtual === botao) { if (audioAtual) audioAtual.pause(); window.speechSynthesis.cancel(); resetarBotaoAudio(); return; }
     if (audioAtual) { audioAtual.pause(); audioAtual.currentTime = 0; } window.speechSynthesis.cancel(); resetarBotaoAudio();
-    botaoAudioAtual = botao; botaoAudioAtual.classList.remove('text-[#66fcf1]'); botaoAudioAtual.classList.add('text-[#05070a]');
+    botaoAudioAtual = botao; botaoAudioAtual.classList.remove('text-[#00e5ff]'); botaoAudioAtual.classList.add('text-[#05070a]');
     if (url && url.startsWith('http')) { audioAtual = new Audio(url); audioAtual.onended = resetarBotaoAudio; audioAtual.play().catch(() => resetarBotaoAudio()); } 
     else { const sintese = new SpeechSynthesisUtterance(texto); sintese.lang = 'en-US'; sintese.onend = resetarBotaoAudio; window.speechSynthesis.speak(sintese); }
 }

@@ -17,34 +17,29 @@
 <body class="min-h-screen p-4 sm:p-6 md:p-10 flex flex-col items-center pb-24 lg:pb-10">
 
     <div id="tela-login" class="flex flex-col items-center justify-center w-full min-h-[90vh] relative z-10 px-4 overflow-hidden">
-        <div class="orb orb1"></div>
-        <div class="orb orb2"></div>
-
-        <div class="w-full flex flex-col items-center justify-center mb-10 animate-fade-up text-center relative z-10">
-            <div class="w-16 h-16 rounded-2xl bg-[#0f151d] border border-[#66fcf1]/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(102,252,241,0.15)] relative">
-                <i class="ph-fill ph-terminal-window text-[#66fcf1] text-3xl"></i>
-                <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-[#05070a] shadow-[0_0_8px_#22c55e]"></div>
+        <div class="w-full flex flex-col items-center justify-center mb-10 text-center relative z-10">
+            <div class="w-16 h-16 rounded-2xl bg-[#0f151d] border border-[#00e5ff]/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,229,255,0.15)] relative">
+                <i class="ph-fill ph-terminal-window text-[#00e5ff] text-3xl"></i>
+                <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-[#05070a]"></div>
             </div>
-            <h1 class="text-4xl font-display font-bold leading-tight tracking-tight text-white">GRIMOIRE</h1>
-            <h2 class="text-2xl font-mono font-bold text-gray-300 mt-1 flex items-center gap-2">
-                <span class="text-[#66fcf1] animate-pulse">//</span> TERMINAL
+            <h1 class="text-4xl font-display font-bold leading-tight text-white">GRIMOIRE</h1>
+            <h2 class="text-xl font-mono font-bold text-gray-400 mt-1 flex items-center gap-2">
+                <span class="text-[#00e5ff] animate-pulse">//</span> TERMINAL
             </h2>
         </div>
 
-        <div class="panel w-full max-w-md p-8 rounded-2xl flex flex-col gap-6 relative animate-fade-up delay-100 z-10">
-            <button id="btn-login-ui" onclick="iniciarLoginAnimado(this)" class="w-full relative overflow-hidden rounded-xl bg-white text-[#05070a] h-14 flex items-center justify-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(102,252,241,0.25)]">
+        <div class="panel w-full max-w-md p-8 rounded-2xl flex flex-col gap-6 relative z-10">
+            <button id="btn-login-ui" onclick="iniciarLoginAnimado(this)" class="w-full relative overflow-hidden rounded-xl bg-white text-[#05070a] h-14 flex items-center justify-center gap-4 transition-all duration-300 hover:-translate-y-1">
                 <span class="font-bold text-[14px] tracking-wide">Continuar com o Google</span>
             </button>
         </div>
     </div>
 
     <div id="tela-app" style="display:none;" class="w-full max-w-7xl relative z-20">
-        <header class="scan-header flex justify-between items-end mb-6">
-            <div class="logo-block">
-                <h1 data-text="// TERMINAL VOCAB">
-                    <span class="glyph">//</span> GRIMOIRE <span class="cursor"></span>
-                </h1>
-                <p>Registro de Dados</p>
+        <header class="flex justify-between items-end mb-6 pb-4 border-b border-[#1f2937]">
+            <div>
+                <h1 class="font-display font-bold text-xl text-[#00e5ff] tracking-widest italic">// GRIMOIRE</h1>
+                <p class="font-mono text-[9px] uppercase tracking-[0.2em] mt-1 text-gray-500">Registro de Dados</p>
             </div>
             <button onclick="sair()" class="text-xs font-bold text-gray-500 hover:text-red-500 transition-colors flex items-center gap-2 tracking-widest uppercase mb-1">
                 <i class="ph ph-sign-out text-lg"></i> Sair
@@ -52,23 +47,23 @@
         </header>
 
         <div class="flex flex-col lg:flex-row gap-8">
-            <aside class="panel p-6 rounded-xl w-full lg:w-1/3 h-fit sticky top-6 z-10 hidden lg:block">
+            <aside class="panel p-6 rounded-2xl w-full lg:w-1/3 h-fit sticky top-6 z-10 hidden lg:block">
                 <h3 class="text-sm font-bold text-gray-300 mb-6 uppercase tracking-widest flex items-center gap-2">
-                    <i class="ph-fill ph-plus-circle text-[#66fcf1] text-lg"></i> Novo Registro
+                    <span class="text-gray-500">+</span> Novo Registro
                 </h3>
-                <div class="space-y-5">
+                <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Inglês</label>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase">Inglês</label>
                         <textarea id="novo-termo" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm"></textarea>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Tradução</label>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase">Tradução</label>
                         <textarea id="traducao-automatica" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm"></textarea>
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wide">Categoria</label>
-                            <button type="button" onclick="abrirModalCategoria()" class="text-[#66fcf1] hover:text-[#9d8bff] transition flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold">+ Nova</button>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase">Categoria</label>
+                            <button type="button" onclick="abrirModalCategoria()" class="text-[#00e5ff] hover:opacity-80 transition flex items-center gap-1 text-[10px] uppercase font-bold">+ Nova</button>
                         </div>
                         <div class="custom-select-container relative">
                             <input type="hidden" id="categoria" value="">
@@ -76,21 +71,21 @@
                                 <span id="categoria-text">Carregando...</span>
                                 <i class="ph ph-caret-down"></i>
                             </div>
-                            <div id="categoria-dropdown" class="hidden absolute top-full left-0 w-full mt-2 panel border border-[#45a29e]/30 rounded-lg shadow-2xl z-50 max-h-48 overflow-y-auto py-1"></div>
+                            <div id="categoria-dropdown" class="hidden absolute top-full left-0 w-full mt-2 panel border border-[#1f2937] rounded-lg shadow-2xl z-50 max-h-48 overflow-y-auto py-1"></div>
                         </div>
                     </div>
-                    <button onclick="salvarPalavra('desktop')" class="w-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-[#05070a] font-bold text-xs uppercase tracking-widest py-4 rounded-xl mt-2 flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(180,144,202,0.15)] hover:scale-[0.98] transition-all">
+                    <button onclick="salvarPalavra('desktop')" class="w-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-[#05070a] font-bold text-xs uppercase tracking-widest py-4 rounded-xl mt-2 flex justify-center items-center gap-2 hover:opacity-90 active:scale-95 transition-all">
                         <i class="ph-fill ph-download-simple text-lg"></i> Salvar no Terminal
                     </button>
                 </div>
             </aside>
 
-            <main class="w-full lg:w-2/3 flex flex-col gap-6 z-0">
+            <main class="w-full lg:w-2/3 flex flex-col gap-5 z-0">
                 <div class="flex flex-col gap-3">
                     <div class="flex items-center justify-between px-1">
                         <div class="flex items-center gap-2 font-mono text-[10px] text-gray-500 uppercase tracking-widest">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#66fcf1] animate-pulse"></span>
-                            <span id="stat-line">0 REGISTROS</span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#00e676] animate-pulse"></span>
+                            <span id="stat-line">0 REGISTROS · 0 CATEGORIAS</span>
                         </div>
                         <div class="flex items-center gap-1 font-mono text-[10px] text-gray-500 uppercase tracking-widest">
                             <i class="ph ph-funnel"></i> Filtros
@@ -99,46 +94,45 @@
                     <div id="filter-chips" class="flex gap-2 overflow-x-auto hide-scrollbar pb-2"></div>
                 </div>
 
-                <div class="relative group">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#66fcf1] font-mono font-bold">></span>
-                    <input type="text" id="campo-busca" oninput="filtrarLista(this.value)" placeholder="Buscar no banco de dados..." class="input-dark w-full pl-10 pr-5 py-4 rounded-xl text-sm font-mono placeholder:font-sans">
+                <div class="relative group mt-1">
+                    <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-base"></i>
+                    <input type="text" id="campo-busca" oninput="filtrarLista(this.value)" placeholder="Buscar no banco de dados..." class="input-dark w-full pl-10 pr-5 py-3.5 rounded-xl text-sm font-mono placeholder:font-sans shadow-inner">
                 </div>
                 
-                <div id="lista-palavras" class="flex flex-col gap-4"></div>
+                <div id="lista-palavras" class="flex flex-col gap-4 mt-2"></div>
 
-                <div id="empty-state" class="hidden flex-col items-center text-center gap-4 py-20 text-gray-500 opacity-80">
-                    <div class="w-16 h-16 rounded-full border-2 border-dashed border-gray-700 flex items-center justify-center mb-2">
-                        <i class="ph ph-database text-2xl text-gray-600"></i>
-                    </div>
-                    <p class="text-sm font-medium text-gray-300">Nenhum registro encontrado</p>
+                <div id="empty-state" class="hidden flex-col items-center text-center gap-3 py-14 text-gray-500">
+                    <i class="ph ph-book-open text-4xl text-gray-700"></i>
+                    <p class="text-sm font-medium text-gray-400">Nenhum registro encontrado</p>
+                    <p class="text-xs max-w-[220px] leading-relaxed">Ajuste seus filtros ou adicione uma nova frase ao terminal.</p>
                 </div>
             </main>
         </div>
 
-        <button onclick="abrirModalMobile()" class="lg:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] flex items-center justify-center text-[#05070a] shadow-[0_4px_15px_rgba(94,231,223,0.3)] hover:scale-105 active:scale-95 transition-transform z-40">
+        <button onclick="abrirModalMobile()" class="lg:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] flex items-center justify-center text-[#05070a] shadow-[0_0_20px_rgba(94,231,223,0.35)] hover:scale-105 active:scale-95 transition-transform z-40">
             <i class="ph ph-plus text-2xl font-bold"></i>
         </button>
 
-        <div id="modal-mobile" class="fixed inset-0 bg-[#05070a]/90 backdrop-blur-sm z-[60] hidden flex-col justify-end transition-opacity">
+        <div id="modal-mobile" class="fixed inset-0 bg-[#000]/70 backdrop-blur-sm z-[60] hidden flex-col justify-end transition-opacity">
             <div class="panel w-full rounded-t-3xl p-6 pb-10 border-t border-[#1f2937] transform translate-y-full transition-transform duration-300" id="sheet-content">
                 <div class="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-6"></div>
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-sm font-bold text-gray-300 uppercase tracking-widest"><i class="ph-fill ph-plus-circle text-[#66fcf1]"></i> Novo Registro</h3>
-                    <button onclick="fecharModalMobile()" class="text-gray-500 hover:text-white p-2"><i class="ph ph-x text-lg"></i></button>
+                    <h3 class="text-sm font-mono font-bold text-gray-300 uppercase tracking-widest"><span class="text-gray-500">+</span> NOVO REGISTRO</h3>
+                    <button onclick="fecharModalMobile()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-xl"></i></button>
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase">Inglês</label>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase">Inglês</label>
                         <textarea id="novo-termo-mobile" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm"></textarea>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase">Tradução</label>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase">Tradução</label>
                         <textarea id="traducao-mobile" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm"></textarea>
                     </div>
                     <div>
-                        <div class="flex justify-between items-center mb-2">
+                        <div class="flex justify-between items-center mb-1.5">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase">Categoria</label>
-                            <button type="button" onclick="abrirModalCategoria()" class="text-[#66fcf1] hover:text-[#9d8bff] transition flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold">+ Nova</button>
+                            <button type="button" onclick="abrirModalCategoria()" class="text-[#00e5ff] text-[10px] uppercase font-bold">+ Nova</button>
                         </div>
                         <div class="custom-select-container relative">
                             <input type="hidden" id="categoria-mobile" value="">
@@ -146,37 +140,36 @@
                                 <span id="categoria-text-mobile">Carregando...</span>
                                 <i class="ph ph-caret-down"></i>
                             </div>
-                            <div id="categoria-dropdown-mobile" class="hidden absolute bottom-full left-0 w-full mb-2 panel border border-[#45a29e]/30 rounded-lg shadow-2xl z-50 max-h-40 overflow-y-auto py-1"></div>
+                            <div id="categoria-dropdown-mobile" class="hidden absolute bottom-full left-0 w-full mb-2 panel border border-[#1f2937] rounded-lg shadow-2xl z-50 max-h-40 overflow-y-auto py-1"></div>
                         </div>
                     </div>
-                    <button onclick="salvarPalavra('mobile')" class="w-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-[#05070a] font-bold text-xs uppercase tracking-widest py-4 rounded-xl mt-4 flex justify-center items-center shadow-lg active:scale-95 transition-all">
+                    <button onclick="salvarPalavra('mobile')" class="w-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-[#05070a] font-bold text-xs uppercase tracking-widest py-4 rounded-xl mt-4 flex justify-center items-center active:scale-95 transition-all">
                         <i class="ph-fill ph-download-simple text-lg"></i> Salvar
                     </button>
                 </div>
             </div>
         </div>
 
-        <div id="modal-categoria" class="fixed inset-0 bg-[#05070a]/90 backdrop-blur-md z-[80] hidden items-center justify-center p-4 transition-opacity">
-            <div class="panel w-full max-w-sm p-6 sm:p-8 rounded-xl shadow-2xl border border-[#66fcf1]/30 relative">
-                <h3 class="text-md font-bold text-gray-200 mb-6 flex items-center gap-2 tracking-widest uppercase">
-                    <i class="ph-fill ph-folder-plus text-[#66fcf1] text-xl"></i> Nova Categoria
-                </h3>
-                <div class="space-y-5">
+        <div id="modal-categoria" class="fixed inset-0 bg-[#000]/70 backdrop-blur-sm z-[80] hidden items-center justify-center p-4">
+            <div class="panel w-full max-w-sm p-6 rounded-2xl shadow-2xl border border-[#1f2937]">
+                <h3 class="text-sm font-mono font-bold text-gray-200 mb-5 uppercase tracking-widest"><i class="ph-fill ph-folder-plus text-[#00e5ff]"></i> Nova Categoria</h3>
+                <div class="space-y-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Nome da Categoria</label>
-                        <input type="text" id="nova-categoria-nome" placeholder="Ex: Expressões..." class="input-dark w-full px-4 py-3 rounded-lg text-sm" onkeypress="if(event.key === 'Enter') salvarNovaCategoria()">
+                        <input type="text" id="nova-categoria-nome" placeholder="Nome da Categoria..." class="input-dark w-full px-4 py-3 rounded-lg text-sm" onkeypress="if(event.key === 'Enter') salvarNovaCategoria()">
                     </div>
-                    <div class="flex gap-4 mt-6 pt-4 border-t border-gray-800">
-                        <button onclick="fecharModalCategoria()" class="w-1/2 py-3 rounded-lg font-bold text-gray-400 bg-[#0b0c10] border border-gray-700 hover:text-white hover:bg-red-500/20 transition text-xs uppercase tracking-wider">Cancelar</button>
-                        <button onclick="salvarNovaCategoria()" class="w-1/2 py-3 rounded-lg font-bold text-[#05070a] bg-gradient-to-r from-[#5ee7df] to-[#b490ca] hover:scale-[1.02] transition text-xs uppercase tracking-wider">Salvar</button>
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="fecharModalCategoria()" class="w-1/2 py-3 rounded-lg font-bold text-gray-400 border border-gray-700 text-xs uppercase">Cancelar</button>
+                        <button onclick="salvarNovaCategoria()" class="w-1/2 py-3 rounded-lg font-bold text-[#05070a] bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-xs uppercase">Salvar</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="modal-edicao" class="fixed inset-0 bg-[#05070a]/90 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
-            <div class="panel w-full max-w-lg p-6 rounded-xl shadow-2xl border border-[#9d8bff]/30">
-                <h3 class="text-lg font-bold text-gray-200 mb-6 uppercase"><i class="ph-fill ph-pencil-simple text-[#9d8bff]"></i> Edição</h3>
+        <div id="modal-edicao" class="fixed inset-0 bg-[#000]/70 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+            <div class="panel w-full max-w-lg p-6 rounded-2xl shadow-2xl border border-[#9d8bff]/30">
+                <h3 class="text-sm font-mono font-bold text-gray-200 mb-5 uppercase tracking-widest">
+                    <span class="text-gray-500">✎</span> Edição
+                </h3>
                 <div class="space-y-4">
                     <textarea id="edit-termo" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm"></textarea>
                     <textarea id="edit-traducao" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm"></textarea>
@@ -186,10 +179,10 @@
                             <span id="edit-categoria-text">Carregando...</span>
                             <i class="ph ph-caret-down"></i>
                         </div>
-                        <div id="edit-categoria-dropdown" class="hidden absolute top-full left-0 w-full mt-2 panel rounded-lg z-50 max-h-40 overflow-y-auto py-1"></div>
+                        <div id="edit-categoria-dropdown" class="hidden absolute top-full left-0 w-full mt-2 panel border border-[#1f2937] rounded-lg z-50 max-h-40 overflow-y-auto py-1"></div>
                     </div>
-                    <div class="flex gap-4 mt-6 pt-4 border-t border-gray-800">
-                        <button onclick="fecharModal()" class="w-1/3 py-3 rounded-lg font-bold text-gray-400 bg-gray-900 border border-gray-700 text-xs uppercase">Cancelar</button>
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="fecharModal()" class="w-1/3 py-3 rounded-lg font-bold text-gray-400 border border-gray-700 text-xs uppercase">Cancelar</button>
                         <button onclick="salvarEdicao()" class="w-2/3 py-3 rounded-lg font-bold text-[#05070a] bg-[#9d8bff] text-xs uppercase">Atualizar</button>
                     </div>
                 </div>
@@ -218,6 +211,6 @@
             setTimeout(() => { bg.classList.add('hidden'); bg.classList.remove('flex'); }, 300);
         }
     </script>
-    <script src="/app.js?v=12"></script>
+    <script src="/app.js?v=13"></script>
 </body>
 </html>
