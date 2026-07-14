@@ -15,6 +15,54 @@ let catSelecionadaMobile = null;
 let catSelecionadaEdit = null;
 let acaoConfirmacaoPendente = null;
 
+// --- UTILITÁRIOS DE SEGURANÇA ---
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// --- DELEGAÇÃO DE EVENTOS GLOBAL ---
+document.addEventListener('click', function(e) {
+    // Intercepta qualquer clique em elementos que tenham o atributo 'data-action'
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+
+    const action = btn.getAttribute('data-action');
+    
+    // Ações de Palavras
+    if (action === 'tocar-audio') {
+        e.stopPropagation(); // Evita que o card expanda ao clicar no áudio
+        tocarAudio(btn, btn.getAttribute('data-index'));
+    }
+    if (action === 'editar-palavra') {
+        e.stopPropagation();
+        prepararEdicao(btn.getAttribute('data-index'));
+    }
+    if (action === 'excluir-palavra') {
+        e.stopPropagation();
+        excluirPalavra(btn.getAttribute('data-id'));
+    }
+    
+    // Ações de Categorias (Swatches)
+    if (action === 'selecionar-categoria') {
+        const id = btn.getAttribute('data-id') === 'null' ? null : parseInt(btn.getAttribute('data-id'));
+        const origem = btn.getAttribute('data-origem');
+        if (origem === 'desktop') selecionarCatDesktop(id);
+        if (origem === 'mobile') selecionarCatMobile(id);
+        if (origem === 'edit') selecionarCatEdit(id);
+    }
+    
+    // Ações do Gerenciador de Categorias
+    if (action === 'editar-categoria') iniciarEdicaoCategoria(btn.getAttribute('data-id'));
+    if (action === 'salvar-categoria') salvarEdicaoCategoria(btn.getAttribute('data-id'));
+    if (action === 'excluir-categoria') excluirCategoria(btn.getAttribute('data-id'));
+});
+
 async function iniciarApp() {
     const res = await fetch('/api/config');
     const config = await res.json();
