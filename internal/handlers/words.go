@@ -137,8 +137,8 @@ func UpdateWordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := database.DB.Exec(
-		"UPDATE vocabularies SET term = $1, translation = $2, category_id = $3 WHERE id = $4 AND user_id = $5",
-		req.Term, req.Translation, req.CategoryID, wordID, userID,
+		"UPDATE vocabularies SET term = $1, translation = $2, category_id = $3, audio_url = $4 WHERE id = $5 AND user_id = $6",
+		req.Term, req.Translation, req.CategoryID, req.AudioURL, wordID, userID,
 	)
 	if err != nil {
 		http.Error(w, "Erro ao atualizar", http.StatusInternalServerError)
