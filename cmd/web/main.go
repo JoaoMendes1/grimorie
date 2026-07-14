@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	varsCriticas := []string{"DATABASE_URL", "SUPABASE_URL", "SUPABASE_PUBLIC_KEY"}
+	varsCriticas := []string{"DATABASE_URL", "SUPABASE_URL", "SUPABASE_PUBLIC_KEY", "SUPABASE_JWT_SECRET"}
 	for _, v := range varsCriticas {
 		if os.Getenv(v) == "" {
 			fmt.Printf("⛔ ERRO CRÍTICO: Variável de ambiente %s não definida. Servidor abortado.\n", v)
