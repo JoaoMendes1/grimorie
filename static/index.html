@@ -3,21 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Grimoire</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body { background-color: #000; color: #fff; }
+        .input-dark { background-color: #0d1117; border: 1px solid #1f2937; color: #fff; transition: all 0.2s; }
+        .input-dark:focus { border-color: #00e5ff; box-shadow: 0 0 0 3px rgba(0,229,255,0.12); outline: none; }
+        .cat-swatch { border: 1.5px solid #262b36; transition: all 0.15s ease; cursor: pointer; }
+        .cat-swatch.selected { box-shadow: 0 0 0 2px rgba(255,255,255,0.15); border-color: transparent; }
+    </style>
 </head>
 
-<body class="min-h-screen p-4 sm:p-6 md:p-10 flex flex-col items-center pb-24 lg:pb-10">
+<body class="min-h-screen flex flex-col items-center antialiased">
 
-    <div id="tela-login" class="flex flex-col items-center justify-center w-full min-h-[90vh] relative z-10 px-4 overflow-hidden">
-        <div class="w-full flex flex-col items-center justify-center mb-10 text-center relative z-10">
+    <div id="tela-loading" class="fixed inset-0 bg-[#000] z-50 flex items-center justify-center">
+        <i class="ph ph-spinner animate-spin text-[#00e5ff] text-4xl"></i>
+    </div>
+
+    <div id="tela-login" style="display:none;" class="flex flex-col items-center justify-center w-full min-h-[100dvh] relative z-10 px-4 overflow-hidden">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+
+        <div class="w-full flex flex-col items-center justify-center mb-10 text-center relative z-10 animate-fade-up">
             <div class="w-16 h-16 rounded-2xl bg-[#0f151d] border border-[#00e5ff]/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,229,255,0.15)] relative">
                 <i class="ph-fill ph-terminal-window text-[#00e5ff] text-3xl"></i>
                 <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-[#05070a]"></div>
@@ -28,64 +42,67 @@
             </h2>
         </div>
 
-        <div class="panel w-full max-w-md p-8 rounded-2xl flex flex-col gap-6 relative z-10">
-            <button id="btn-login-ui" onclick="iniciarLoginAnimado(this)" class="w-full relative overflow-hidden rounded-xl bg-white text-[#05070a] h-14 flex items-center justify-center gap-4 transition-all duration-300 hover:-translate-y-1">
+        <div class="panel w-full max-w-md p-8 rounded-2xl flex flex-col gap-6 relative z-10 animate-fade-up delay-100">
+            <button onclick="entrarComGoogle()" class="w-full relative overflow-hidden rounded-xl bg-white text-[#05070a] h-14 flex items-center justify-center gap-4 transition-all duration-300 hover:-translate-y-1">
                 <span class="font-bold text-[14px] tracking-wide">Continuar com o Google</span>
             </button>
         </div>
     </div>
 
-    <div id="tela-app" style="display:none;" class="w-full max-w-7xl relative z-20">
-        <header class="flex justify-between items-end mb-6 pb-4 border-b border-[#1f2937]">
+    <div id="tela-app" style="display:none;" class="w-full max-w-7xl relative z-20 pb-24 lg:pb-10 p-4 sm:p-6 md:p-10">
+        <header class="flex justify-between items-start mb-6 pb-4 border-b border-[#1f2937]">
             <div>
                 <h1 class="font-display font-bold text-xl text-[#00e5ff] tracking-widest italic">// GRIMOIRE</h1>
                 <p class="font-mono text-[9px] uppercase tracking-[0.2em] mt-1 text-gray-500">Registro de Dados</p>
             </div>
-            <button onclick="sair()" class="text-xs font-bold text-gray-500 hover:text-red-500 transition-colors flex items-center gap-2 tracking-widest uppercase mb-1">
+            <button onclick="sair()" class="text-xs font-bold text-gray-500 hover:text-red-500 transition-colors flex items-center gap-2 tracking-widest uppercase mt-1">
                 <i class="ph ph-sign-out text-lg"></i> Sair
             </button>
         </header>
 
         <div class="flex flex-col lg:flex-row gap-8">
-            <aside class="panel p-6 rounded-2xl w-full lg:w-1/3 h-fit sticky top-6 z-10 hidden lg:block">
-                <h3 class="text-sm font-bold text-gray-300 mb-6 uppercase tracking-widest flex items-center gap-2">
-                    <span class="text-gray-500">+</span> Novo Registro
+            
+            <aside class="panel p-6 rounded-2xl w-full lg:w-[360px] flex-shrink-0 h-fit sticky top-6 z-10 hidden lg:block">
+                <h3 class="text-sm font-mono font-bold text-gray-300 mb-6 uppercase tracking-widest flex items-center gap-2">
+                    <span class="text-gray-500">+</span> NOVO REGISTRO
                 </h3>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Inglês</label>
-                        <textarea id="novo-termo" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm resize-none overflow-hidden" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Inglês</label>
+                        <textarea id="novo-termo" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm resize-none" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Tradução</label>
-                        <textarea id="traducao-automatica" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm resize-none overflow-hidden" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Tradução</label>
+                        <textarea id="traducao-automatica" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm resize-none" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
                     </div>
+                    
                     <div>
-                        <div class="flex justify-between items-center mb-2">
+                        <div class="flex justify-between items-end mb-2">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Categoria</label>
-                            <button type="button" onclick="abrirModalCategoria()" class="text-[#00e5ff] hover:opacity-80 transition flex items-center gap-1 text-[10px] uppercase font-bold">+ Nova</button>
-                        </div>
-                        <div class="custom-select-container relative">
-                            <input type="hidden" id="categoria" value="">
-                            <div onclick="toggleDropdown('categoria-dropdown')" class="input-dark w-full px-4 py-3 rounded-lg text-sm cursor-pointer flex justify-between items-center select-none">
-                                <span id="categoria-text">Carregando...</span>
-                                <i class="ph ph-caret-down"></i>
+                            <div class="flex gap-3">
+                                <button type="button" onclick="abrirGerenciadorCategorias()" class="text-[12px] text-gray-500 hover:text-white transition-colors flex items-center"><i class="ph-fill ph-gear"></i></button>
+                                <button type="button" onclick="toggleNovaCategoriaUI('desktop')" class="text-[10px] text-[#00e5ff] font-bold uppercase tracking-widest hover:opacity-75 flex items-center gap-1"><i class="ph ph-plus"></i> Nova</button>
                             </div>
-                            <div id="categoria-dropdown" class="hidden absolute top-full left-0 w-full mt-2 panel border border-[#1f2937] rounded-lg shadow-2xl z-50 max-h-48 overflow-y-auto py-1"></div>
+                        </div>
+                        <div id="cat-swatches-desktop" class="flex flex-wrap gap-2 mb-2"></div>
+                        <div id="new-cat-row-desktop" class="hidden flex gap-2">
+                            <input id="new-cat-input-desktop" type="text" placeholder="Nome..." class="input-dark flex-1 rounded-lg px-3 py-2.5 text-xs" onkeypress="if(event.key === 'Enter') salvarNovaCategoriaUI('desktop')">
+                            <button type="button" onclick="salvarNovaCategoriaUI('desktop')" class="px-3 rounded-lg bg-[#00e5ff]/10 border border-[#00e5ff] text-[#00e5ff] text-xs font-bold">OK</button>
                         </div>
                     </div>
+
                     <button onclick="salvarPalavra('desktop')" class="w-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-[#05070a] font-bold text-xs uppercase tracking-widest py-4 rounded-xl mt-2 flex justify-center items-center gap-2 hover:opacity-90 active:scale-95 transition-all">
                         <i class="ph-fill ph-download-simple text-lg"></i> Salvar no Terminal
                     </button>
                 </div>
             </aside>
 
-            <main class="w-full lg:w-2/3 flex flex-col gap-5 z-0">
+            <main class="w-full lg:flex-1 flex flex-col gap-5 z-0">
                 <div class="flex flex-col gap-3">
                     <div class="flex items-center justify-between px-1">
                         <div class="flex items-center gap-2 font-mono text-[10px] text-gray-500 uppercase tracking-widest">
                             <span class="w-1.5 h-1.5 rounded-full bg-[#00e676] animate-pulse"></span>
-                            <span id="stat-line">0 REGISTROS · 0 CATEGORIAS</span>
+                            <span id="stat-line">0 REGISTROS</span>
                         </div>
                         <div class="flex items-center gap-1 font-mono text-[10px] text-gray-500 uppercase tracking-widest">
                             <i class="ph ph-funnel"></i> Filtros
@@ -104,7 +121,6 @@
                 <div id="empty-state" class="hidden flex-col items-center text-center gap-3 py-14 text-gray-500">
                     <i class="ph ph-book-open text-4xl text-gray-700"></i>
                     <p class="text-sm font-medium text-gray-400">Nenhum registro encontrado</p>
-                    <p class="text-xs max-w-[220px] leading-relaxed">Ajuste seus filtros ou adicione uma nova frase ao terminal.</p>
                 </div>
             </main>
         </div>
@@ -113,54 +129,38 @@
             <i class="ph ph-plus text-2xl font-bold"></i>
         </button>
 
-        <div id="modal-mobile" class="fixed inset-0 bg-[#000]/70 backdrop-blur-sm z-[60] hidden flex-col justify-end transition-opacity">
-            <div class="panel w-full rounded-t-3xl p-6 pb-10 border-t border-[#1f2937] transform translate-y-full transition-transform duration-300" id="sheet-content">
-                <div class="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-6"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-sm font-mono font-bold text-gray-300 uppercase tracking-widest"><span class="text-gray-500">+</span> NOVO REGISTRO</h3>
-                    <button onclick="fecharModalMobile()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <div id="modal-mobile" class="fixed inset-0 bg-[#090b10] z-[60] hidden flex-col transition-opacity overflow-y-auto hide-scrollbar">
+            <div class="p-6 min-h-screen flex flex-col max-w-md mx-auto w-full pt-10">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-sm font-mono font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2"><i class="ph-fill ph-terminal-window text-[#00e5ff]"></i> NOVO REGISTRO</h3>
+                    <button onclick="fecharModalMobile()" class="text-gray-500 hover:text-white bg-[#1f2937]/50 w-8 h-8 rounded-full flex items-center justify-center"><i class="ph ph-x text-lg"></i></button>
                 </div>
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Inglês</label>
-                        <textarea id="novo-termo-mobile" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm resize-none overflow-hidden" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <textarea id="novo-termo-mobile" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm resize-none" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Tradução</label>
-                        <textarea id="traducao-mobile" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm resize-none overflow-hidden" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <textarea id="traducao-mobile" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm resize-none" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
                     </div>
                     <div>
-                        <div class="flex justify-between items-center mb-1.5">
+                        <div class="flex justify-between items-end mb-2">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Categoria</label>
-                            <button type="button" onclick="abrirModalCategoria()" class="text-[#00e5ff] text-[10px] uppercase font-bold">+ Nova</button>
-                        </div>
-                        <div class="custom-select-container relative">
-                            <input type="hidden" id="categoria-mobile" value="">
-                            <div onclick="toggleDropdown('categoria-dropdown-mobile')" class="input-dark w-full px-4 py-3 rounded-lg text-sm cursor-pointer flex justify-between items-center">
-                                <span id="categoria-text-mobile">Carregando...</span>
-                                <i class="ph ph-caret-down"></i>
+                            <div class="flex gap-3">
+                                <button type="button" onclick="abrirGerenciadorCategorias()" class="text-[12px] text-gray-500 hover:text-white transition-colors flex items-center"><i class="ph-fill ph-gear"></i></button>
+                                <button type="button" onclick="toggleNovaCategoriaUI('mobile')" class="text-[10px] text-[#00e5ff] font-bold uppercase tracking-widest flex items-center gap-1"><i class="ph ph-plus"></i> Nova</button>
                             </div>
-                            <div id="categoria-dropdown-mobile" class="hidden absolute bottom-full left-0 w-full mb-2 panel border border-[#1f2937] rounded-lg shadow-2xl z-50 max-h-40 overflow-y-auto py-1"></div>
+                        </div>
+                        <div id="cat-swatches-mobile" class="flex flex-wrap gap-2 mb-2"></div>
+                        <div id="new-cat-row-mobile" class="hidden flex gap-2">
+                            <input id="new-cat-input-mobile" type="text" placeholder="Nome..." class="input-dark flex-1 rounded-lg px-3 py-2.5 text-xs" onkeypress="if(event.key === 'Enter') salvarNovaCategoriaUI('mobile')">
+                            <button type="button" onclick="salvarNovaCategoriaUI('mobile')" class="px-3 rounded-lg bg-[#00e5ff]/10 border border-[#00e5ff] text-[#00e5ff] text-xs font-bold">OK</button>
                         </div>
                     </div>
                     <button onclick="salvarPalavra('mobile')" class="w-full bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-[#05070a] font-bold text-xs uppercase tracking-widest py-4 rounded-xl mt-4 flex justify-center items-center active:scale-95 transition-all">
-                        <i class="ph-fill ph-download-simple text-lg"></i> Salvar
+                        <i class="ph-fill ph-download-simple text-lg mr-2"></i> Salvar
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <div id="modal-categoria" class="fixed inset-0 bg-[#000]/70 backdrop-blur-sm z-[80] hidden items-center justify-center p-4">
-            <div class="panel w-full max-w-sm p-6 rounded-2xl shadow-2xl border border-[#1f2937]">
-                <h3 class="text-sm font-mono font-bold text-gray-200 mb-5 uppercase tracking-widest"><i class="ph-fill ph-folder-plus text-[#00e5ff]"></i> Nova Categoria</h3>
-                <div class="space-y-4">
-                    <div>
-                        <input type="text" id="nova-categoria-nome" placeholder="Nome da Categoria..." class="input-dark w-full px-4 py-3 rounded-lg text-sm" onkeypress="if(event.key === 'Enter') salvarNovaCategoria()">
-                    </div>
-                    <div class="flex gap-3 mt-4">
-                        <button onclick="fecharModalCategoria()" class="w-1/2 py-3 rounded-lg font-bold text-gray-400 border border-gray-700 text-xs uppercase tracking-widest">Cancelar</button>
-                        <button onclick="salvarNovaCategoria()" class="w-1/2 py-3 rounded-lg font-bold text-[#05070a] bg-gradient-to-r from-[#5ee7df] to-[#b490ca] text-xs uppercase tracking-widest">Salvar</button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -171,29 +171,20 @@
                     <h3 class="text-sm font-mono font-bold text-gray-200 uppercase tracking-widest flex items-center gap-2">
                         <i class="ph-fill ph-pencil-simple text-[#00e5ff] text-lg"></i> Edição
                     </h3>
-                    <button onclick="fecharModal()" class="text-gray-500 hover:text-white transition-colors bg-[#1f2937]/30 w-8 h-8 rounded-full flex items-center justify-center">
-                        <i class="ph ph-x"></i>
-                    </button>
+                    <button onclick="fecharModal()" class="text-gray-500 hover:text-white transition-colors bg-[#1f2937]/30 w-8 h-8 rounded-full flex items-center justify-center"><i class="ph ph-x"></i></button>
                 </div>
                 <div class="space-y-5">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Inglês</label>
-                        <textarea id="edit-termo" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm resize-none overflow-hidden" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <textarea id="edit-termo" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm resize-none" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Tradução</label>
-                        <textarea id="edit-traducao" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm resize-none overflow-hidden" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <textarea id="edit-traducao" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm resize-none" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Categoria</label>
-                        <div class="custom-select-container relative">
-                            <input type="hidden" id="edit-categoria" value="">
-                            <div onclick="toggleDropdown('edit-categoria-dropdown')" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm cursor-pointer flex justify-between items-center">
-                                <span id="edit-categoria-text">Carregando...</span>
-                                <i class="ph ph-caret-down"></i>
-                            </div>
-                            <div id="edit-categoria-dropdown" class="hidden absolute top-full left-0 w-full mt-2 panel border border-[#1f2937] rounded-xl z-50 max-h-40 overflow-y-auto py-1"></div>
-                        </div>
+                        <div id="cat-swatches-edit" class="flex flex-wrap gap-2"></div>
                     </div>
                     <div class="pt-2 mt-2">
                         <button onclick="salvarEdicao()" class="w-full py-4 rounded-xl font-bold text-[#05070a] bg-gradient-to-r from-[#5ee7df] to-[#b490ca] hover:opacity-90 transition-opacity text-xs uppercase tracking-widest shadow-[0_0_15px_rgba(94,231,223,0.3)]">
@@ -204,28 +195,35 @@
             </div>
         </div>
 
-    </div>
+        <div id="modal-gerenciador-categorias" class="fixed inset-0 bg-[#000]/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+            <div class="panel w-full max-w-md p-6 sm:p-8 rounded-3xl shadow-2xl border border-[#1f2937]">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-sm font-mono font-bold text-gray-200 uppercase tracking-widest flex items-center gap-2">
+                        <i class="ph-fill ph-gear text-[#00e5ff] text-lg"></i> Categorias
+                    </h3>
+                    <button onclick="fecharGerenciadorCategorias()" class="text-gray-500 hover:text-white transition-colors bg-[#1f2937]/30 w-8 h-8 rounded-full flex items-center justify-center"><i class="ph ph-x"></i></button>
+                </div>
+                
+                <div id="lista-categorias-gerenciador" class="space-y-2 max-h-64 overflow-y-auto hide-scrollbar">
+                    </div>
+            </div>
+        </div>
 
-    <script>
-        function iniciarLoginAnimado(btn) {
-            if(btn.disabled) return;
-            btn.disabled = true;
-            btn.innerHTML = `<i class="ph ph-spinner animate-spin text-gray-700 text-lg"></i> <span class="font-mono font-bold text-sm text-gray-700">DECODIFICANDO...</span>`;
-            setTimeout(() => { entrarComGoogle(); }, 1000);
-        }
-        function abrirModalMobile() {
-            const bg = document.getElementById('modal-mobile');
-            const sheet = document.getElementById('sheet-content');
-            bg.classList.remove('hidden'); bg.classList.add('flex');
-            setTimeout(() => { sheet.classList.remove('translate-y-full'); }, 10);
-        }
-        function fecharModalMobile() {
-            const bg = document.getElementById('modal-mobile');
-            const sheet = document.getElementById('sheet-content');
-            sheet.classList.add('translate-y-full');
-            setTimeout(() => { bg.classList.add('hidden'); bg.classList.remove('flex'); }, 300);
-        }
-    </script>
-    <script src="/app.js?v=14"></script>
+        <div id="modal-confirmacao" class="fixed inset-0 bg-[#000]/85 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+            <div class="panel w-full max-w-sm p-6 sm:p-8 rounded-3xl shadow-2xl border border-red-500/30 text-center">
+                <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4 text-red-500 text-3xl">
+                    <i class="ph-fill ph-warning-circle"></i>
+                </div>
+                <h3 id="confirm-title" class="text-lg font-bold text-white mb-2">Excluir Registro?</h3>
+                <p id="confirm-desc" class="text-sm text-gray-400 mb-6">Esta ação não pode ser desfeita.</p>
+                <div class="flex gap-3">
+                    <button onclick="fecharConfirmacao()" class="w-1/2 py-3 rounded-xl font-bold text-gray-400 bg-[#1f2937]/50 hover:bg-[#1f2937] transition-colors text-xs uppercase tracking-widest">Cancelar</button>
+                    <button id="confirm-action-btn" class="w-1/2 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-colors text-xs uppercase tracking-widest">Excluir</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="/app.js?v=16"></script>
 </body>
 </html>

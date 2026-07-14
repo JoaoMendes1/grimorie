@@ -54,6 +54,9 @@ func main() {
 	r.With(middleware.AuthSupabase).Get("/api/categories", handlers.ListCategoriesHandler)
 	r.With(middleware.AuthSupabase).Post("/api/categories", handlers.CreateCategoryHandler)
 
+	r.With(middleware.AuthSupabase).Put("/api/categories/{id}", handlers.UpdateCategoryHandler)
+	r.With(middleware.AuthSupabase).Delete("/api/categories/{id}", handlers.DeleteCategoryHandler)
+
 	porta := os.Getenv("PORT")
 	if porta == "" {
 		porta = "8080"
