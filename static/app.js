@@ -47,6 +47,11 @@ document.addEventListener('click', function(e) {
         e.stopPropagation();
         excluirPalavra(btn.getAttribute('data-id'));
     }
+    // Ação de expandir/recolher card
+    if (action === 'revelar-card') {
+        // O 'btn' neste caso é o próprio card
+        btn.classList.toggle('revealed');
+    }
     
     // Ações de Categorias (Swatches)
     if (action === 'selecionar-categoria') {
@@ -56,11 +61,27 @@ document.addEventListener('click', function(e) {
         if (origem === 'mobile') selecionarCatMobile(id);
         if (origem === 'edit') selecionarCatEdit(id);
     }
+
+    // Ação de Filtros
+    if (action === 'selecionar-filtro') {
+        const nome = btn.getAttribute('data-nome');
+        selecionarFiltro(nome);
+    }
     
     // Ações do Gerenciador de Categorias
     if (action === 'editar-categoria') iniciarEdicaoCategoria(btn.getAttribute('data-id'));
     if (action === 'salvar-categoria') salvarEdicaoCategoria(btn.getAttribute('data-id'));
     if (action === 'excluir-categoria') excluirCategoria(btn.getAttribute('data-id'));
+});
+
+// --- DELEGAÇÃO DE EVENTOS DE TECLADO ---
+document.addEventListener('keydown', function(e) {
+    const target = e.target;
+    // Salvar categoria no gerenciador com "Enter"
+    if (e.key === 'Enter' && target.matches('[data-action="enter-salvar-categoria"]')) {
+        e.preventDefault(); // Evita qualquer comportamento padrão de formulário
+        salvarEdicaoCategoria(target.getAttribute('data-id'));
+    }
 });
 
 async function iniciarApp() {
@@ -363,7 +384,7 @@ function aplicarFiltrosEBuscar() {
         const estilo = obterEstiloCategoria(palavra.category_id, nomeCategoria !== "Sem Categoria" ? nomeCategoria : "");
 
        lista.innerHTML += `
-            <div class="registro-item panel p-5 pl-6 sm:p-6 sm:pl-7 rounded-2xl flex flex-col relative overflow-hidden transition-all cursor-pointer group border border-[#1f2937]/50" onclick="this.classList.toggle('revealed')">
+            <div class="registro-item panel p-5 pl-6 sm:p-6 sm:pl-7 rounded-2xl flex flex-col relative overflow-hidden transition-all cursor-pointer group border border-[#1f2937]/50" data-action="revelar-card">
                 <div class="absolute left-0 top-0 bottom-0 w-1 opacity-80" style="background-color: ${estilo.corHex};"></div>
                 <div class="flex justify-between items-start mb-3">
                     <span class="text-[9px] font-bold ${estilo.texto} uppercase tracking-wider px-2.5 py-1 rounded-full border flex items-center gap-1.5" style="border-color:${hexToRgba(estilo.corHex,0.3)}; background:${hexToRgba(estilo.corHex,0.1)};">
@@ -470,11 +491,11 @@ window.tocarAudio = async function(botao, index) {
         const dadosAud = await response.json();
         
         // Usamos a URL retornada pelo Go (ou a do banco de dados como garantia)
-        const urlSegura = dadosAud.audioUrl || urlDoBanco;
+        const urlSegura = dadosAud.audioUrl || urlOriginal;
 
         if (urlSegura && urlSegura.startsWith('http')) { 
             // Quebra o cache do navegador
-            const urlSemCache = urlSegura + (urlSegura.includes('?') ? '&' : '?') + 'cb=' + new Date().getTime();
+            const urlSemCache = urlSegura + (urlSegura.includes('?') ? '&' : '?') + 'cb=' + new Date().getTime(); // Evita cache
             
             audioAtual = new Audio(urlSemCache); 
             audioAtual.onended = resetarBotaoAudio; 

@@ -22,48 +22,39 @@ func InitDB() error {
 		return fmt.Errorf("falha ao conectar ao supabase: %w", err)
 	}
 
-	query := `
-	CREATE TABLE IF NOT EXISTS categories (
-		id SERIAL PRIMARY KEY, 
-		name TEXT NOT NULL, 
-		user_id TEXT NOT NULL, 
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	);
+	// Lista de migrações estruturadas e em ordem lógica
+	migracoes := []string{
+		// Passo 1: Garantir que as tabelas principais existam
+		`CREATE TABLE IF NOT EXISTS categories (
+			id SERIAL PRIMARY KEY, 
+			name TEXT NOT NULL, 
+			user_id TEXT NOT NULL, 
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		);`,
+		`CREATE TABLE IF NOT EXISTS vocabularies (
+			id SERIAL PRIMARY KEY,
+			term TEXT NOT NULL, 
+			translation TEXT NOT NULL,
+			audio_url TEXT,
+			status TEXT DEFAULT 'Pendente',
+			user_id TEXT DEFAULT '', 
+			category_id INT REFERENCES categories(id) ON DELETE SET NULL, 
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		);`,
 
-	CREATE TABLE IF NOT EXISTS vocabularies (
-		id SERIAL PRIMARY KEY,
-		term TEXT NOT NULL, 
-		translation TEXT NOT NULL,
-		audio_url TEXT,
-		status TEXT DEFAULT 'Pendente',
-		user_id TEXT DEFAULT '', 
-		category_id INT REFERENCES categories(id) ON DELETE SET NULL, 
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	);
-
-	ALTER TABLE vocabularies ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'Pendente';
-	ALTER TABLE vocabularies ADD COLUMN IF NOT EXISTS user_id TEXT DEFAULT '';
-	ALTER TABLE vocabularies ADD COLUMN IF NOT EXISTS category_id INT REFERENCES categories(id) ON DELETE SET NULL;
-	`
-	indices := []string{
+		// Passo 3: Criação de Índices para ultra-performance nas buscas
 		`CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_vocabularies_user_id ON vocabularies(user_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_vocabularies_category_id ON vocabularies(category_id);`,
 	}
 
-	for _, query := range indices {
-			_, err = DB.Exec(query)
-			if err != nil {
-				return fmt.Errorf("Erro ao criar índice: %v", err)
-			}
+	// Executa cada instrução SQL de uma vez. Se uma falhar, ele aborta e avisa qual foi.
+	for _, query := range migracoes {
+		if _, err := DB.Exec(query); err != nil {
+			return fmt.Errorf("erro ao inicializar schema do DB: %w \nQuery: %s", err, query)
+		}
 	}
 
-	fmt.Println("✅ Índices de banco de dados verificados/criados com sucesso.")
-
-	_, err = DB.Exec(query)
-	if err != nil {
-		return fmt.Errorf("falha ao criar/atualizar tabela: %w", err)
-	}
-
+	fmt.Println("✅ Schema e Índices do banco de dados verificados com sucesso.")
 	return nil
 }
