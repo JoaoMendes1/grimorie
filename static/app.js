@@ -513,14 +513,26 @@ window.tocarAudio = async function(botao, index) {
         resetarBotaoAudio();
     }
 }
-
-// MOBILE
 // MOBILE
 window.abrirModalMobile = function() { 
     document.getElementById('modal-mobile').classList.replace('hidden', 'flex'); 
-    document.body.style.overflow = 'hidden'; // 🔒 Congela o scroll da tela de fundo
+    document.body.style.overflow = 'hidden'; 
 }
 window.fecharModalMobile = function() { 
     document.getElementById('modal-mobile').classList.replace('flex', 'hidden'); 
-    document.body.style.overflow = ''; // 🔓 Libera a tela de fundo novamente
+    document.body.style.overflow = ''; 
 }
+
+// 🚀 AUTOSCROLL DO TECLADO
+// Quando um campo ganha foco, rola o modal para mostrar o botão "Salvar"
+document.querySelectorAll('#modal-mobile textarea, #modal-mobile input').forEach(campo => {
+    campo.addEventListener('focus', () => {
+        setTimeout(() => {
+            const modal = document.getElementById('modal-mobile');
+            modal.scrollTo({
+                top: modal.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 350); // 350ms é o tempo médio da animação do teclado subir
+    });
+});
