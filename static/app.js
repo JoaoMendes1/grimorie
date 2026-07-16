@@ -52,6 +52,28 @@ document.addEventListener('click', function(e) {
         // O 'btn' neste caso é o próprio card
         btn.classList.toggle('revealed');
     }
+
+    // Ação de Copiar Texto
+    if (action === 'copiar-texto' || action === 'copiar-input') {
+        e.stopPropagation(); // Trava o card para não abrir/fechar
+        
+        let texto = '';
+        if (action === 'copiar-texto') texto = btn.getAttribute('data-texto');
+        if (action === 'copiar-input') texto = document.getElementById(btn.getAttribute('data-alvo')).value;
+        
+        if (!texto) return;
+
+        navigator.clipboard.writeText(texto).then(() => {
+            const icon = btn.querySelector('i');
+            if(icon) {
+                const classOriginal = icon.className;
+                icon.className = 'ph-fill ph-check-circle text-[#00e676] pointer-events-none text-base';
+                setTimeout(() => { icon.className = classOriginal; }, 2000);
+            }
+        });
+    }
+    
+    // Ações de Categorias (Swatches)
     
     // Ações de Categorias (Swatches)
     if (action === 'selecionar-categoria') {
@@ -84,12 +106,35 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// Efeito de Loading Sci-Fi
+function iniciarEfeitoLoading() {
+    const textos = [
+        "> Inicializando núcleo de dados...",
+        "> Decodificando chaves de segurança...",
+        "> Estabelecendo conexão remota...",
+        "> Sincronizando módulos..."
+    ];
+    let i = 0;
+    const elemento = document.getElementById('loading-text');
+    if(elemento) {
+        return setInterval(() => {
+            i = (i + 1) % textos.length;
+            elemento.textContent = textos[i];
+        }, 800);
+    }
+    return null;
+}
+const loadingInterval = iniciarEfeitoLoading();
+
 async function iniciarApp() {
     const res = await fetch('/api/config');
     const config = await res.json();
     clienteSupabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
 
     const { data: { session } } = await clienteSupabase.auth.getSession();
+    
+    // Para a animação do terminal antes de esconder a tela
+    if (loadingInterval) clearInterval(loadingInterval);
     document.getElementById('tela-loading').style.display = 'none';
 
     if (session) {
@@ -360,6 +405,13 @@ window.salvarPalavra = async function(origem = 'desktop') {
     carregarLista();
 }
 
+
+async function carregarLista() {
+    fetch('/api/words', { method: 'GET', headers: await getHeaders() }).then(res => res.json()).then(dados => {
+        ultimaListaPalavras = dados; renderizarFiltros(); aplicarFiltrosEBuscar();
+    });
+}
+
 function aplicarFiltrosEBuscar() {
     const lista = document.getElementById('lista-palavras');
     const emptyState = document.getElementById('empty-state');
@@ -397,20 +449,23 @@ function aplicarFiltrosEBuscar() {
                         <i class="ph ph-caret-down chevron text-sm ml-1 text-gray-400 pointer-events-none"></i>
                     </div>
                 </div>
-                <h3 class="text-[15px] sm:text-[17px] font-semibold text-white leading-snug pr-2">${escapeHTML(palavra.term || "")}</h3>
+                
+                <div class="flex justify-between items-start gap-4">
+                    <h3 class="text-[15px] sm:text-[17px] font-semibold text-white leading-snug pr-2">${escapeHTML(palavra.term || "")}</h3>
+                    <button data-action="copiar-texto" data-texto="${escapeHTML(palavra.term || "")}" class="text-gray-500 hover:text-white p-1 transition-colors shrink-0"><i class="ph ph-copy pointer-events-none text-base"></i></button>
+                </div>
+                
                 <div class="flashcard-reveal">
                     <div>
                         <div class="h-px w-full bg-[#1f2937] my-3 relative"><div class="absolute left-0 top-0 h-full w-12" style="background: linear-gradient(90deg, ${estilo.corHex}, transparent);"></div></div>
-                        <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed pb-1">${escapeHTML(palavra.translation || "")}</p>
+                        
+                        <div class="flex justify-between items-start gap-4">
+                            <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed pb-1">${escapeHTML(palavra.translation || "")}</p>
+                            <button data-action="copiar-texto" data-texto="${escapeHTML(palavra.translation || "")}" class="text-gray-500 hover:text-[#00e5ff] p-1 transition-colors shrink-0"><i class="ph ph-copy pointer-events-none text-base"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>`;
-    });
-}
-
-async function carregarLista() {
-    fetch('/api/words', { method: 'GET', headers: await getHeaders() }).then(res => res.json()).then(dados => {
-        ultimaListaPalavras = dados; renderizarFiltros(); aplicarFiltrosEBuscar();
     });
 }
 

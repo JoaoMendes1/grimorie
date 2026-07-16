@@ -5,6 +5,9 @@
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Grimoire</title>
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -30,8 +33,10 @@
 
 <body class="min-h-screen flex flex-col items-center antialiased">
 
-    <div id="tela-loading" class="fixed inset-0 bg-[#000] z-50 flex items-center justify-center">
-        <i class="ph ph-spinner animate-spin text-[#00e5ff] text-4xl"></i>
+    <div id="tela-loading" class="fixed inset-0 bg-[#05070a] z-50 flex flex-col items-center justify-center font-mono">
+        <i class="ph ph-circle-notch animate-spin text-[#00e5ff] text-4xl mb-6"></i>
+        <div id="loading-text" class="text-[#45a29e] text-[10px] tracking-widest uppercase mb-4 h-4">> Inicializando núcleo de dados...</div>
+        <div class="sci-fi-loader"></div>
     </div>
 
     <div id="tela-login" class="flex flex-col items-center justify-center w-full min-h-[90vh] relative z-10 px-4 overflow-hidden" style="display:none;">
@@ -112,14 +117,19 @@
                 </h3>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Inglês</label>
+                        <div class="flex justify-between items-end mb-1.5">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inglês</label>
+                            <button type="button" data-action="copiar-input" data-alvo="novo-termo" class="text-gray-500 hover:text-white transition-colors"><i class="ph ph-copy pointer-events-none"></i></button>
+                        </div>
                         <textarea id="novo-termo" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm auto-resize"></textarea>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Tradução</label>
+                        <div class="flex justify-between items-end mb-1.5">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tradução</label>
+                            <button type="button" data-action="copiar-input" data-alvo="traducao-automatica" class="text-gray-500 hover:text-white transition-colors"><i class="ph ph-copy pointer-events-none"></i></button>
+                        </div>
                         <textarea id="traducao-automatica" rows="1" class="input-dark w-full px-4 py-3 rounded-lg text-sm auto-resize"></textarea>
                     </div>
-                    
                     <div>
                         <div class="flex justify-between items-end mb-2">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Categoria</label>
@@ -181,11 +191,17 @@
                 </div>
                 <div class="space-y-5">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Inglês</label>
+                        <div class="flex justify-between items-end mb-1.5">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inglês</label>
+                            <button type="button" data-action="copiar-input" data-alvo="novo-termo-mobile" class="text-gray-500 hover:text-white transition-colors"><i class="ph ph-copy pointer-events-none"></i></button>
+                        </div>
                         <textarea id="novo-termo-mobile" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm auto-resize"></textarea>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Tradução</label>
+                        <div class="flex justify-between items-end mb-1.5">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tradução</label>
+                            <button type="button" data-action="copiar-input" data-alvo="traducao-mobile" class="text-gray-500 hover:text-white transition-colors"><i class="ph ph-copy pointer-events-none"></i></button>
+                        </div>
                         <textarea id="traducao-mobile" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm auto-resize"></textarea>
                     </div>
                     <div>
@@ -219,11 +235,17 @@
                 </div>
                 <div class="space-y-5">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Inglês</label>
+                        <div class="flex justify-between items-end mb-1.5">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inglês</label>
+                            <button type="button" data-action="copiar-input" data-alvo="edit-termo" class="text-gray-500 hover:text-white transition-colors"><i class="ph ph-copy pointer-events-none"></i></button>
+                        </div>
                         <textarea id="edit-termo" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm auto-resize"></textarea>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-widest">Tradução</label>
+                        <div class="flex justify-between items-end mb-1.5">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tradução</label>
+                            <button type="button" data-action="copiar-input" data-alvo="edit-traducao" class="text-gray-500 hover:text-white transition-colors"><i class="ph ph-copy pointer-events-none"></i></button>
+                        </div>
                         <textarea id="edit-traducao" rows="1" class="input-dark w-full px-4 py-3.5 rounded-xl text-sm auto-resize"></textarea>
                     </div>
                     <div>

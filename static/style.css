@@ -227,3 +227,27 @@ textarea {
 /* Esconder Scrollbars */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =========================================
+   ANIMAÇÃO DE CARREGAMENTO SCI-FI
+========================================= */
+@keyframes loadingBar {
+    0% {transform: translateX(-100%);}
+    50% {transformo: translateX(0%);}
+    100% {transform: translateX(100%);}
+}
+
+.sci-fi-loader {
+    width: 200px; height: 2px;
+    background-color: #1f2937;
+    overflow: hidden;
+    position: relative;
+    border-radius: 2px;
+}
+
+.sci-fi-loader::after {
+    content: ''; 
+    position: absolute; top: 0; left: 0; bottom: 0; width: 100%;
+    background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+    animation: loadingBar 1.5s infinite ease-in-out; 
+}
