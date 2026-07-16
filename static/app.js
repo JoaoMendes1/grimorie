@@ -514,11 +514,15 @@ window.tocarAudio = async function(botao, index) {
     }
 }
 // MOBILE
+let scrollPosicaoAnterior = 0;
+
 window.abrirModalMobile = function() {
     document.getElementById('modal-mobile').classList.replace('hidden', 'flex');
-    
-    // O travamento nativo e universal do fundo
-    document.body.style.overflow = 'hidden'; 
+
+    scrollPosicaoAnterior = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollPosicaoAnterior}px`;
+    document.body.style.width = '100%';
 
     const assinatura = document.getElementById('assinatura');
     if (assinatura) assinatura.style.display = 'none';
@@ -526,11 +530,25 @@ window.abrirModalMobile = function() {
 
 window.fecharModalMobile = function() {
     document.getElementById('modal-mobile').classList.replace('flex', 'hidden');
-    
-    // Libera o fundo
-    document.body.style.overflow = ''; 
+
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, scrollPosicaoAnterior);
 
     const assinatura = document.getElementById('assinatura');
     if (assinatura) assinatura.style.display = 'block';
 }
+
+// 🚀 AUTOSCROLL DO TECLADO
+document.querySelectorAll('#modal-mobile textarea, #modal-mobile input').forEach(campo => {
+    campo.addEventListener('focus', () => {
+        setTimeout(() => {
+            campo.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }, 350);
+    });
+});
 
